@@ -10,68 +10,229 @@ import WeddingWizard from '../components/forms/WeddingWizard';
 import KidsWizard from '../components/forms/KidsWizard';
 import PetWizard from '../components/forms/PetWizard';
 import GraduationWizard from '../components/forms/GraduationWizard';
+import { useAuth } from '../contexts/AuthContext';
+import { getProfile, getUserPages } from '../services/db';
+import { Crown, Lock } from 'lucide-react';
 
-const TEMPLATES = [
-  { id: 'amor', name: 'História de Amor', icon: '❤️' },
+const RECIPIENTS = [
+  { id: 'amor', name: 'Meu Amor', icon: '❤️' },
+  { id: 'mae', name: 'Minha Mãe', icon: '👩' },
+  { id: 'pai', name: 'Meu Pai', icon: '👨' },
+  { id: 'avo-f', name: 'Minha Avó', icon: '👵' },
+  { id: 'avo-m', name: 'Meu Avô', icon: '👴' },
+  { id: 'filha', name: 'Minha Filha', icon: '👧' },
+  { id: 'filho', name: 'Meu Filho', icon: '👦' },
+  { id: 'melhor-amiga', name: 'Minha Melhor Amiga', icon: '👭' },
+  { id: 'melhor-amigo', name: 'Meu Melhor Amigo', icon: '👬' },
+  { id: 'amigo', name: 'Um Amigo(a)', icon: '🤝' },
+  { id: 'familia', name: 'Minha Família', icon: '👨‍👩‍👧' },
+  { id: 'pet', name: 'Meu Pet', icon: '🐾', isPremium: true },
+  { id: 'outro', name: 'Outra Pessoa', icon: '✨' },
+];
+
+const OCCASIONS = [
+  { id: 'historia-amor', name: 'História de Amor', icon: '❤️' },
+  { id: 'pedido-namoro', name: 'Pedido de Namoro', icon: '💍' },
+  { id: 'casamento', name: 'Casamento', icon: '💒', isPremium: true },
+  { id: 'dia-namorados', name: 'Dia dos Namorados', icon: '💖' },
   { id: 'aniversario', name: 'Aniversário', icon: '🎂' },
-  { id: 'mae', name: 'Homenagem para Mãe', icon: '👩‍👧' },
-  { id: 'pai', name: 'Homenagem para Pai', icon: '👨' },
-  { id: 'memorial', name: 'Memorial', icon: '🕊️' },
-  { id: 'casamento', name: 'Casamento', icon: '💍' },
-  { id: 'infantil', name: 'Festa Infantil', icon: '🎉' },
-  { id: 'pets', name: 'Pet', icon: '🐾' },
-  { id: 'formatura', name: 'Formatura', icon: '🎓' },
+  { id: 'comemoracao', name: 'Comemoração Especial', icon: '🎉' },
+  { id: 'dia-maes', name: 'Dia das Mães', icon: '👩' },
+  { id: 'dia-pais', name: 'Dia dos Pais', icon: '👨' },
+  { id: 'homenagem-avo-f', name: 'Homenagem para Avó', icon: '👵' },
+  { id: 'homenagem-avo-m', name: 'Homenagem para Avô', icon: '👴' },
+  { id: 'nascimento', name: 'Nascimento', icon: '👶', isPremium: true },
+  { id: 'cha-bebe', name: 'Chá de Bebê', icon: '🍼', isPremium: true },
+  { id: 'formatura', name: 'Formatura', icon: '🎓', isPremium: true },
+  { id: 'aposentadoria', name: 'Aposentadoria', icon: '💼', isPremium: true },
+  { id: 'agradecimento', name: 'Agradecimento', icon: '🙏' },
+  { id: 'desculpas', name: 'Pedido de Desculpas', icon: '💌' },
+  { id: 'pet', name: 'Pet', icon: '🐾', isPremium: true },
+  { id: 'memorial', name: 'Memorial', icon: '🕊️', isPremium: true },
+  { id: 'personalizado', name: 'Personalizado', icon: '✨', isPremium: true },
 ];
 
 export default function CreatePage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [template, setTemplate] = useState('');
+  const { user } = useAuth();
+  const [step, setStep] = useState(1);
+  const [recipient, setRecipient] = useState('');
+  const [occasion, setOccasion] = useState('');
+  const [mappedWizard, setMappedWizard] = useState('');
 
-  // Seta o template inicial com base no que veio da Home
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+
+  // Verificação Anti-Fraude (Limita usuários Free a 1 presente)
+  useEffect(() => {
+    const checkLimit = async () => {
+      if (!user) return;
+      const userProfile = await getProfile(user.id);
+      
+      if (userProfile?.plan === 'premium') {
+        setIsPremiumUser(true);
+      } else {
+        const userPages = await getUserPages(user.id);
+        if (userPages.length >= 1) {
+          setHasReachedLimit(true);
+        }
+      }
+    };
+    checkLimit();
+  }, [user]);
+
+  // Modo Visitante: restaurar fluxo após login
+  useEffect(() => {
+    const pending = localStorage.getItem('pendingCreate');
+    if (pending) {
+      try {
+        const parsed = JSON.parse(pending);
+        const { recipient: r, draftKey, timestamp } = parsed;
+        // Expirar pendingCreate após 24h
+        if (timestamp && Date.now() - timestamp > 86400000) {
+          localStorage.removeItem('pendingCreate');
+          return;
+        }
+        if (r) setRecipient(r);
+        if (draftKey) {
+          const occasionMap: Record<string, string> = {
+            'draft_amor': 'historia-amor',
+            'draft_mae': 'dia-maes',
+            'draft_avo-f': 'homenagem-avo-f',
+            'draft_pai': 'dia-pais',
+            'draft_avo-m': 'homenagem-avo-m',
+            'draft_aniversario': 'aniversario',
+            'draft_memorial': 'memorial',
+            'draft_casamento': 'casamento',
+            'draft_infantil': 'nascimento',
+            'draft_pet': 'pet',
+            'draft_formatura': 'formatura',
+          };
+          const o = occasionMap[draftKey];
+          if (o) setOccasion(o);
+        }
+        setStep(3);
+      } finally {
+        localStorage.removeItem('pendingCreate');
+      }
+    }
+  }, []);
+
+  // Handle auto-routing from Home Quick Links if any
   useEffect(() => {
     if (location.state?.template) {
-      setTemplate(location.state.template);
+      const t = location.state.template;
+      // Map legacy templates to the new flow directly
+      if (t === 'amor') { setRecipient('amor'); setOccasion('historia-amor'); }
+      else if (t === 'mae') { setRecipient('mae'); setOccasion('dia-maes'); }
+      else if (t === 'pai') { setRecipient('pai'); setOccasion('dia-pais'); }
+      else if (t === 'aniversario') { setRecipient('outro'); setOccasion('aniversario'); }
+      else if (t === 'filho') { setRecipient('filho'); setOccasion('aniversario'); }
+      else if (t === 'irmao') { setRecipient('melhor-amigo'); setOccasion('comemoracao'); }
+      else if (t === 'avo') { setRecipient('avo-f'); setOccasion('homenagem-avo-f'); }
+      else if (t === 'amigo') { setRecipient('amigo'); setOccasion('comemoracao'); }
     }
   }, [location]);
 
+  // When both are selected, map to the correct wizard
+  useEffect(() => {
+    if (recipient && occasion) {
+      let w = 'amor'; // fallback
+      
+      if (occasion === 'casamento' || occasion === 'pedido-namoro') w = 'casamento';
+      else if (occasion === 'aniversario') w = 'aniversario';
+      else if (occasion === 'formatura') w = 'formatura';
+      else if (occasion === 'memorial') w = 'memorial';
+      else if (occasion === 'pet' || recipient === 'pet') w = 'pets';
+      else if (occasion === 'nascimento' || occasion === 'cha-bebe' || recipient === 'filho' || recipient === 'filha') w = 'infantil';
+      else if (recipient === 'mae' || occasion === 'dia-maes' || occasion === 'homenagem-avo-f' || recipient === 'avo-f') w = 'mae';
+      else if (recipient === 'pai' || occasion === 'dia-pais' || occasion === 'homenagem-avo-m' || recipient === 'avo-m') w = 'pai';
+      
+      setMappedWizard(w);
+      setStep(3);
+    }
+  }, [recipient, occasion]);
+
   const handleBack = () => {
-    // Se veio da home com state, ao cancelar volta pra home. 
-    // Se não, só apaga o state interno (fallback).
-    if (location.state?.template) {
-      navigate('/');
+    if (step === 3) {
+      setStep(2);
+      setOccasion('');
+      setMappedWizard('');
+    } else if (step === 2) {
+      setStep(1);
+      setRecipient('');
     } else {
-      setTemplate('');
+      navigate('/');
     }
   };
   
-  if (template === 'amor') return <LoveWizard onBack={handleBack} />;
-  if (template === 'aniversario') return <BirthdayWizard onBack={handleBack} />;
-  if (template === 'mae') return <MotherWizard onBack={handleBack} />;
-  if (template === 'pai') return <FatherWizard onBack={handleBack} />;
-  if (template === 'memorial') return <MemorialWizard onBack={handleBack} />;
-  if (template === 'casamento') return <WeddingWizard onBack={handleBack} />;
-  if (template === 'infantil') return <KidsWizard onBack={handleBack} />;
-  if (template === 'pets') return <PetWizard onBack={handleBack} />;
-  if (template === 'formatura') return <GraduationWizard onBack={handleBack} />;
+  if (step === 3 && mappedWizard) {
+    if (mappedWizard === 'amor') return <LoveWizard onBack={handleBack} recipient={recipient} />;
+    if (mappedWizard === 'aniversario') return <BirthdayWizard onBack={handleBack} />;
+    if (mappedWizard === 'mae') return <MotherWizard onBack={handleBack} recipient={recipient} />;
+    if (mappedWizard === 'pai') return <FatherWizard onBack={handleBack} recipient={recipient} />;
+    if (mappedWizard === 'memorial') return <MemorialWizard onBack={handleBack} />;
+    if (mappedWizard === 'casamento') return <WeddingWizard onBack={handleBack} />;
+    if (mappedWizard === 'infantil') return <KidsWizard onBack={handleBack} />;
+    if (mappedWizard === 'pets') return <PetWizard onBack={handleBack} />;
+    if (mappedWizard === 'formatura') return <GraduationWizard onBack={handleBack} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 flex flex-col items-center justify-center">
-      <div className="max-w-4xl w-full">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-10 text-slate-800 dark:text-slate-100">
-          Qual presente você deseja criar hoje?
+      <div className="max-w-5xl w-full">
+        {step > 1 && (
+          <button onClick={handleBack} className="mb-6 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium flex items-center gap-2">
+            ← Voltar
+          </button>
+        )}
+        
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-12 text-slate-800 dark:text-slate-100">
+          {step === 1 ? 'Para quem é este presente?' : 'Qual é a ocasião?'}
         </h1>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {TEMPLATES.map(t => (
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          {(step === 1 ? RECIPIENTS : OCCASIONS).map(item => (
             <motion.button
               whileHover={{ y: -5, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              key={t.id}
-              onClick={() => setTemplate(t.id)}
-              className="p-8 rounded-[2rem] flex flex-col items-center gap-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none hover:border-primary/50 transition-colors"
+              key={item.id}
+              onClick={() => {
+                // Bloqueio de plano Premium (só para usuários logados)
+                if (user && 'isPremium' in item && item.isPremium && !isPremiumUser) {
+                  navigate('/plans');
+                  return;
+                }
+
+                // Bloqueio de limite Free (só para usuários logados)
+                if (user && hasReachedLimit && !isPremiumUser) {
+                  navigate('/plans');
+                  return;
+                }
+
+                if (step === 1) {
+                  setRecipient(item.id);
+                  setStep(2);
+                } else {
+                  setOccasion(item.id);
+                }
+              }}
+              className={`p-6 md:p-8 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/40 dark:shadow-none transition-all group relative overflow-hidden ${
+                'isPremium' in item && item.isPremium 
+                  ? 'border-2 border-amber-200 dark:border-amber-500/30 hover:border-amber-400 hover:shadow-amber-500/20' 
+                  : 'border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-primary/20'
+              }`}
             >
-              <span className="text-5xl md:text-6xl mb-2">{t.icon}</span>
-              <span className="font-bold text-lg text-center text-slate-700 dark:text-slate-300">{t.name}</span>
+              {'isPremium' in item && item.isPremium && (
+                <div className="absolute top-3 right-3 text-amber-500 flex items-center justify-center bg-amber-50 dark:bg-amber-500/10 p-1.5 rounded-full" title="Exclusivo Premium">
+                  {!isPremiumUser ? <Lock className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
+                </div>
+              )}
+              <span className="text-4xl md:text-5xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</span>
+              <span className="font-bold text-[13px] md:text-sm text-center text-slate-700 dark:text-slate-300 leading-tight">
+                {item.name}
+              </span>
             </motion.button>
           ))}
         </div>

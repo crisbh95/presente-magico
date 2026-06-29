@@ -1,13 +1,24 @@
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, Download, Share2, Check, ArrowRight } from 'lucide-react';
+import { Download, Check, Mail, Copy, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
 export default function SuccessPage() {
   const location = useLocation();
   const [copied, setCopied] = useState(false);
   
+  const pageId = location.state?.pageId;
+
+  if (!pageId) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
+        <h1 className="text-2xl font-bold mb-4">Página não encontrada</h1>
+        <Link to="/dashboard" className="text-primary hover:underline">Voltar para o Dashboard</Link>
+      </div>
+    );
+  }
+
   // Para o QR Code funcionar no celular enquanto testa localmente, 
   // ideal seria o IP da rede (ex: 192.168.0.x). 
   // Usamos origin por padrão, mas se for localhost, o celular não vai achar.
@@ -18,11 +29,7 @@ export default function SuccessPage() {
     
   const scanUrl = `${window.location.origin}/p/${pageId}`;
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(pageUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+
 
   const downloadQRCode = () => {
     const svg = document.getElementById('qrcode');
@@ -81,9 +88,12 @@ export default function SuccessPage() {
             <button onClick={downloadQRCode} className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 transition">
               <Download size={18} /> Baixar QR
             </button>
-            <button className="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-slate-300 transition">
-              <Share2 size={18} /> Compartilhar
-            </button>
+            <a 
+              href={`mailto:?subject=Um presente mágico para você!&body=Fiz uma surpresa muito especial. Veja aqui: ${scanUrl}`}
+              className="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-slate-300 transition"
+            >
+              <Mail size={18} /> E-mail
+            </a>
           </div>
         </div>
 

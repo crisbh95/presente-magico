@@ -1,17 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, UploadCloud, PawPrint } from 'lucide-react';
+import { ChevronRight, ChevronLeft, PawPrint, Loader2, Eye } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
+import PreviewModal from '../PreviewModal';
+
+import { useDraft } from '../../hooks/useDraft';
+import toast from 'react-hot-toast';
 
 export default function PetWizard({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [showPreview, setShowPreview] = useState(false);
+  const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft('draft_pet', {
     name: '',
     history: '',
-    photos: [] as File[],
-    videos: [] as File[],
+    photos: [] as PhotoWithCaption[]
   });
+
+  const { user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -19,7 +29,39 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
     else setStep(s => s - 1);
   };
 
-  const handleFinish = () => navigate('/success', { state: { pageId: Math.random().toString(36).substring(2, 8) } });
+  const handleFinish = async () => {
+    if (!user) {
+      localStorage.setItem('pendingCreate', JSON.stringify({recipient: 'pet', draftKey: 'draft_pet', timestamp: Date.now() }));
+      navigate('/login', { state: { from: { pathname: '/create' } } });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const photosData: PhotoData[] = await Promise.all(
+        formData.photos.map(async (photo) => {
+          if (!photo.file) return { url: '', caption: photo.caption };
+          const url = await uploadPhoto(photo.file, user.id);
+          return { url, caption: photo.caption };
+        })
+      );
+      
+      const pageData = {
+        name: formData.name,
+        history: formData.history,
+        photos: photosData.filter(p => p.url)
+      };
+      
+      const pageId = await createPage(user.id, 'pets', pageData);
+      
+      clearDraft();
+      navigate('/success', { state: { pageId } });
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      toast.error('Houve um erro ao salvar o presente. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-teal-50/50 dark:bg-slate-950 flex flex-col items-center pt-12 px-4 pb-20">
@@ -35,6 +77,13 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
           ))}
         </div>
       </div>
+
+      {hasRestored && (
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+          <span>Rascunho recuperado.</span>
+          <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
+        </div>
+      )}
 
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 shadow-2xl border border-teal-100 dark:border-slate-800 relative overflow-hidden">
         
@@ -80,9 +129,13 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold">Álbum Especial</h2>
               </div>
-              <div className="border-2 border-dashed border-teal-200 dark:border-slate-700 bg-teal-50/50 dark:bg-slate-800/50 rounded-3xl p-8 text-center cursor-pointer hover:bg-teal-100/50 transition-colors">
-                <UploadCloud className="w-10 h-10 text-teal-500 mx-auto mb-3" />
-                <p className="font-medium text-slate-700 dark:text-slate-300">Toque para adicionar fotos e vídeos</p>
+              <div>
+                <PhotoUploadWithCaption 
+                  photos={formData.photos} 
+                  onChange={(photos) => setFormData({...formData, photos})}
+                  maxPhotos={10}
+                  themeColor="teal"
+                />
               </div>
             </motion.div>
           )}
@@ -93,13 +146,28 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
           <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
             <ChevronLeft size={24} />
           </button>
-          <button onClick={step === 3 ? handleFinish : nextStep} disabled={step === 1 && !formData.name} className="flex-1 bg-teal-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-teal-200 hover:bg-teal-600 transition-colors disabled:opacity-50">
-            {step === 3 ? 'Gerar Página' : 'Continuar'} 
-            {step < 3 && <ChevronRight size={24} />}
+          
+          <button onClick={() => setShowPreview(true)} title="Ver Prévia" className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-300 hover:bg-teal-100 transition-colors">
+            <Eye size={24} />
+          </button>
+
+          <button onClick={step === 3 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && !formData.name)} className="flex-1 bg-teal-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-teal-200 hover:bg-teal-600 transition-colors disabled:opacity-50">
+            {isSaving ? <Loader2 className="animate-spin" size={24} /> : step === 3 ? 'Gerar Página' : 'Continuar'} 
+            {!isSaving && step < 3 && <ChevronRight size={24} />}
           </button>
         </div>
 
       </div>
+
+      <PreviewModal 
+        isOpen={showPreview} 
+        onClose={() => setShowPreview(false)} 
+        pageData={{
+          ...formData,
+          name1: formData.name, // compatibility
+          photos: formData.photos.map(p => ({ url: p.preview || '', caption: p.caption }))
+        }} 
+      />
     </div>
   );
 }

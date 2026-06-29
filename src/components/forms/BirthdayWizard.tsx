@@ -1,18 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Gift, Sparkles, UploadCloud, Search, Cake } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Gift, Sparkles, Search, Cake, Loader2, Eye } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
+import PreviewModal from '../PreviewModal';
+import { useDraft } from '../../hooks/useDraft';
+import toast from 'react-hot-toast';
 
 export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [showPreview, setShowPreview] = useState(false);
+  const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft('draft_aniversario', {
     name: '',
     age: '',
-    photos: [] as File[],
+    date: '',
+    photos: [] as PhotoWithCaption[],
     music: '',
     message: ''
   });
+
+  const { user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -20,8 +31,40 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
     else setStep(s => s - 1);
   };
 
-  const handleFinish = () => {
-    navigate('/success', { state: { pageId: Math.random().toString(36).substring(2, 8) } });
+  const handleFinish = async () => {
+    if (!user) {
+      localStorage.setItem('pendingCreate', JSON.stringify({recipient: 'outro', draftKey: 'draft_aniversario', timestamp: Date.now() }));
+      navigate('/login', { state: { from: { pathname: '/create' } } });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const photosData: PhotoData[] = await Promise.all(
+        formData.photos.map(async (photo) => {
+          if (!photo.file) return { url: '', caption: photo.caption };
+          const url = await uploadPhoto(photo.file, user.id);
+          return { url, caption: photo.caption };
+        })
+      );
+      
+      const pageData = {
+        name1: formData.name,
+        age: formData.age,
+        date: formData.date,
+        music: formData.music,
+        message: formData.message,
+        photos: photosData.filter(p => p.url)
+      };
+      
+      const pageId = await createPage(user.id, 'aniversario', pageData);
+      clearDraft();
+      navigate('/success', { state: { pageId } });
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      toast.error('Houve um erro ao salvar o presente. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const generateAI = () => {
@@ -46,6 +89,13 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
           ))}
         </div>
       </div>
+
+      {hasRestored && (
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+          <span>Rascunho recuperado.</span>
+          <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
+        </div>
+      )}
 
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 shadow-2xl border border-indigo-100 dark:border-slate-800 relative overflow-hidden">
         
@@ -98,13 +148,11 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
                 <h2 className="text-2xl font-bold">Fotos e Música de Festa</h2>
               </div>
               
-              <div>
-                <label className="block font-medium mb-2 text-slate-700 dark:text-slate-300">As fotos mais divertidas</label>
-                <div className="border-2 border-dashed border-indigo-200 dark:border-slate-700 bg-indigo-50/50 dark:bg-slate-800/50 rounded-3xl p-8 text-center cursor-pointer hover:bg-indigo-100/50 transition-colors">
-                  <UploadCloud className="w-10 h-10 text-indigo-400 mx-auto mb-3" />
-                  <p className="font-medium text-slate-700 dark:text-slate-300">Toque ou arraste as fotos aqui</p>
-                </div>
-              </div>
+              <PhotoUploadWithCaption
+                photos={formData.photos}
+                onChange={(photos) => setFormData({ ...formData, photos })}
+                maxPhotos={6}
+              />
 
               <div>
                 <label className="block font-medium mb-2 text-slate-700 dark:text-slate-300">Trilha Sonora Animada</label>
@@ -155,20 +203,43 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
             <ChevronLeft size={24} />
           </button>
           
+          <button
+            onClick={() => setShowPreview(true)}
+            disabled={!formData.name}
+            className="flex-1 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            <Eye size={20} /> Preview
+          </button>
+
           <button 
             onClick={step === 4 ? handleFinish : nextStep}
             disabled={
               (step === 1 && !formData.name) ||
-              (step === 2 && !formData.age)
+              (step === 2 && !formData.age) ||
+              isSaving
             }
             className="flex-1 bg-indigo-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-indigo-200 hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:shadow-none"
           >
-            {step === 4 ? 'Gerar Presente' : 'Continuar'} 
+            {isSaving ? <Loader2 className="animate-spin" /> : step === 4 ? 'Gerar Presente' : 'Continuar'} 
             {step < 4 && <ChevronRight size={24} />}
           </button>
         </div>
 
       </div>
+
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        pageData={{
+          recipient: 'aniversario',
+          name1: formData.name,
+          age: formData.age,
+          date: formData.date,
+          music: formData.music,
+          message: formData.message,
+          photos: formData.photos
+        }}
+      />
     </div>
   );
 }

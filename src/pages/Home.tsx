@@ -1,20 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Gift, Sparkles, Music, Camera, Star, CheckCircle2, Clock, Smartphone } from 'lucide-react';
+import { Heart, Gift, Sparkles, Music, Star, CheckCircle2, Clock, LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import OnboardingModal from '../components/OnboardingModal';
 
 const CARDS = [
   { id: 'amor', title: 'Amor', icon: Heart, color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-200' },
   { id: 'aniversario', title: 'Aniversário', icon: Gift, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-200' },
   { id: 'mae', title: 'Mãe', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-50', border: 'border-purple-200' },
   { id: 'pai', title: 'Pai', icon: Star, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
+  { id: 'filho', title: 'Filho(a)', icon: Heart, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  { id: 'irmao', title: 'Irmão(ã)', icon: Star, color: 'text-cyan-500', bg: 'bg-cyan-50', border: 'border-cyan-200' },
+  { id: 'avo', title: 'Avô(ó)', icon: Sparkles, color: 'text-indigo-500', bg: 'bg-indigo-50', border: 'border-indigo-200' },
+  { id: 'amigo', title: 'Amigo(a)', icon: Gift, color: 'text-fuchsia-500', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [introStage, setIntroStage] = useState(0);
   const [introFinished, setIntroFinished] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   // Controle da animação cinematográfica
   useEffect(() => {
@@ -33,84 +45,84 @@ export default function Home() {
     }, 800);
   };
 
-  // Se o intro não terminou, mostra apenas a animação
-  if (!introFinished) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden font-sans">
-        <AnimatePresence>
-          {introStage >= 1 && introStage < 4 && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: introStage >= 2 ? 1.5 : 1, opacity: 1 }}
-              exit={{ scale: 3, opacity: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute z-10"
-            >
-              {introStage === 1 ? (
-                <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_50px_20px_rgba(255,255,255,0.8)]" />
-              ) : (
-                <Gift size={64} className="text-white animate-pulse" />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {introStage === 3 && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 1 }}
-              className="text-white text-xl md:text-3xl font-serif mt-32 text-center px-4 absolute z-20"
-            >
-              "Algumas lembranças merecem viver para sempre..."
-            </motion.p>
-          )}
-        </AnimatePresence>
-
-        {introStage >= 4 && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              {[...Array(30)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ x: 0, y: 0, opacity: 1 }}
-                  animate={{
-                    x: (Math.random() - 0.5) * window.innerWidth,
-                    y: (Math.random() - 0.5) * window.innerHeight,
-                    opacity: 0,
-                    rotate: Math.random() * 360
-                  }}
-                  transition={{ duration: 2, ease: "easeOut" }}
-                  className="absolute"
-                >
-                  {i % 3 === 0 ? <Heart size={24} className="text-rose-500" /> : i % 3 === 1 ? <Sparkles size={24} className="text-amber-400" /> : <Music size={24} className="text-purple-400" />}
-                </motion.div>
-              ))}
-            </motion.div>
-            
-            <motion.h1
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-500 tracking-tight"
-            >
-              PRESENTE MÁGICO
-            </motion.h1>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  // O SITE REAL: Landing Page Completa + Cards
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-x-hidden">
+    <>
+      {!introFinished ? (
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden font-sans">
+          <AnimatePresence>
+            {introStage >= 1 && introStage < 4 && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: introStage >= 2 ? 1.5 : 1, opacity: 1 }}
+                exit={{ scale: 3, opacity: 0 }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="absolute z-10"
+              >
+                {introStage === 1 ? (
+                  <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_50px_20px_rgba(255,255,255,0.8)]" />
+                ) : (
+                  <Gift size={64} className="text-white animate-pulse" />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {introStage === 3 && (
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 1 }}
+                className="text-white text-xl md:text-3xl font-serif mt-32 text-center px-4 absolute z-20"
+              >
+                "Algumas lembranças merecem viver para sempre..."
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          {introStage >= 4 && (
+            <>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              >
+                {[...Array(30)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ x: 0, y: 0, opacity: 1 }}
+                    animate={{
+                      x: (Math.random() - 0.5) * window.innerWidth,
+                      y: (Math.random() - 0.5) * window.innerHeight,
+                      opacity: 0,
+                      rotate: Math.random() * 360
+                    }}
+                    transition={{ duration: 2, ease: "easeOut" }}
+                    className="absolute"
+                  >
+                    {i % 3 === 0 ? <Heart size={24} className="text-rose-500" /> : i % 3 === 1 ? <Sparkles size={24} className="text-amber-400" /> : <Music size={24} className="text-purple-400" />}
+                  </motion.div>
+                ))}
+              </motion.div>
+              
+              <motion.h1
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-500 tracking-tight"
+              >
+                PRESENTE MÁGICO
+              </motion.h1>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-x-hidden">
+      <Helmet>
+        <title>Presente Mágico | Crie presentes inesquecíveis</title>
+        <meta name="description" content="Crie páginas personalizadas com contador de tempo, música e fotos para presentear quem você ama." />
+      </Helmet>
       
       {/* Header Simples */}
       <header className="fixed top-0 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-100 dark:border-slate-800">
@@ -118,10 +130,27 @@ export default function Home() {
           <div className="font-extrabold text-xl bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-purple-600">
             Presente Mágico
           </div>
-          <nav className="hidden md:flex gap-6 font-medium text-slate-600 dark:text-slate-300">
+          <nav className="hidden md:flex gap-6 items-center font-medium text-slate-600 dark:text-slate-300">
             <a href="#criar" className="hover:text-primary transition">Criar</a>
             <a href="#funcionalidades" className="hover:text-primary transition">Funcionalidades</a>
             <a href="#precos" className="hover:text-primary transition">Planos</a>
+            
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2" />
+            
+            {user ? (
+              <>
+                <Link to="/dashboard" className="flex items-center gap-2 hover:text-primary transition">
+                  <UserIcon size={18} /> Meu Painel
+                </Link>
+                <button onClick={handleLogout} className="flex items-center gap-2 text-rose-500 hover:text-rose-600 transition" title="Sair">
+                  <LogOut size={18} /> Sair
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="px-5 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition font-bold shadow-md shadow-primary/20">
+                Entrar
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -256,6 +285,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FEEDBACK DO USUÁRIO (DEPOIMENTOS) */}
+      <section className="py-24 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold mb-4 text-slate-900 dark:text-white">O que dizem os apaixonados?</h2>
+            <p className="text-xl text-slate-500">Histórias reais de presentes inesquecíveis.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700">
+              <div className="flex gap-1 text-amber-400 mb-4">
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 italic mb-6">"Fiz para o aniversário de 1 ano de namoro. Quando ele apontou a câmera pro QR Code e tocou a nossa música, ele chorou muito. Melhor presente!"</p>
+              <div className="font-bold text-slate-900 dark:text-white">- Amanda Costa</div>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700">
+              <div className="flex gap-1 text-amber-400 mb-4">
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 italic mb-6">"Dei de Dia das Mães. Escondi o QR Code dentro de uma caixa de chocolates. A carta gerada pela IA ficou perfeita, nem acreditei."</p>
+              <div className="font-bold text-slate-900 dark:text-white">- Rafael Mendes</div>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700">
+              <div className="flex gap-1 text-amber-400 mb-4">
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+                <Star size={20} fill="currentColor" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 italic mb-6">"Super fácil de usar. Em 5 minutos eu montei uma página inteira pro meu pai com fotos antigas. A ideia do contador de tempo juntos é genial."</p>
+              <div className="font-bold text-slate-900 dark:text-white">- Beatriz Lima</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PLANOS E PREÇOS */}
       <section id="precos" className="py-24 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -275,7 +352,7 @@ export default function Home() {
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-emerald-400" /> Modelos Básicos</li>
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-emerald-400" /> QR Code padrão</li>
               </ul>
-              <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="w-full py-4 rounded-xl bg-slate-700 hover:bg-slate-600 font-bold transition">Criar Agora</button>
+              <button onClick={() => navigate('/create')} className="w-full py-4 rounded-xl bg-slate-700 hover:bg-slate-600 font-bold transition">Criar Agora</button>
             </div>
 
             {/* Premium */}
@@ -285,14 +362,14 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-2 text-white">Magia Premium</h3>
               <p className="text-rose-100 mb-6">Para memórias infinitas.</p>
-              <div className="text-5xl font-extrabold mb-8 text-white">R$ 19<span className="text-xl font-medium text-rose-200">/mês</span></div>
+              <div className="text-5xl font-extrabold mb-8 text-white">R$ 9,90<span className="text-xl font-medium text-rose-200">/mês</span></div>
               <ul className="space-y-4 mb-8 text-white">
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> Páginas ilimitadas</li>
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> IA Ghostwriter Ilimitada</li>
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> Contador de Tempo e Músicas</li>
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> Download de QR Code em SVG</li>
               </ul>
-              <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="w-full py-4 rounded-xl bg-white text-purple-600 hover:bg-slate-50 font-bold transition">Assinar Premium</button>
+              <button onClick={() => user ? navigate('/plans') : navigate('/login')} className="w-full py-4 rounded-xl bg-white text-purple-600 hover:bg-slate-50 font-bold transition">Assinar Premium</button>
             </div>
           </div>
         </div>
@@ -300,9 +377,17 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="bg-slate-950 py-12 text-center text-slate-500 border-t border-slate-800">
-        <p>© 2026 Presente Mágico. Todos os direitos reservados.</p>
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-4">
+          <p>© 2026 Presente Mágico. Todos os direitos reservados.</p>
+          <div className="flex gap-6">
+            <Link to="/privacidade" className="hover:text-slate-300 transition">Política de Privacidade</Link>
+            <Link to="/contato" className="hover:text-slate-300 transition">Fale Conosco</Link>
+          </div>
+        </div>
       </footer>
-
     </div>
+      )}
+      <OnboardingModal />
+    </>
   );
 }

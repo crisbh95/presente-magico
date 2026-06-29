@@ -7,6 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
         cursive: ['"Great Vibes"', 'cursive'],
       },
       colors: {
@@ -15,9 +17,6 @@ export default {
         primary: 'var(--primary)',
         'primary-foreground': 'var(--primary-foreground)',
       },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      }
     },
   },
   plugins: [],

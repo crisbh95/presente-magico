@@ -1,22 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Heart, Sparkles, UploadCloud, Search, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, Sparkles, Search, Loader2, Eye } from 'lucide-react';
 import { generateMessage } from '../../services/ai';
+import { useAuth } from '../../contexts/AuthContext';
+import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
+import { useDraft } from '../../hooks/useDraft';
+import PreviewModal from '../PreviewModal';
+import toast from 'react-hot-toast';
 
-export default function LoveWizard({ onBack }: { onBack: () => void }) {
+export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () => void, recipient?: string }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [showPreview, setShowPreview] = useState(false);
+  const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft(`draft_${recipient}`, {
     myName: '',
     loveName: '',
     startDate: '',
-    photos: [] as File[],
+    photos: [] as PhotoWithCaption[],
     music: '',
     message: ''
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isFriend = recipient.includes('amig') || recipient.includes('outro') || recipient === 'familia';
+  const title1 = isFriend ? "O seu nome" : "Qual o seu nome?";
+
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -24,14 +37,54 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
     else setStep(s => s - 1);
   };
 
-  const handleFinish = () => {
-    navigate('/success', { state: { pageId: Math.random().toString(36).substring(2, 8) } });
+  const handleFinish = async () => {
+    if (!user) {
+      localStorage.setItem('pendingCreate', JSON.stringify({ recipient, draftKey: `draft_${recipient}`, timestamp: Date.now() }));
+      navigate('/login', { state: { from: { pathname: '/create' } } });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      // 1. Fazer upload de todas as fotos com legenda
+      const photosData: PhotoData[] = await Promise.all(
+        formData.photos.map(async (photo) => {
+          if (!photo.file) return { url: '', caption: photo.caption };
+          const url = await uploadPhoto(photo.file, user.id);
+          return { url, caption: photo.caption };
+        })
+      );
+      
+      // 2. Salvar página no firestore
+      const pageData = {
+        name1: formData.myName,
+        name2: formData.loveName,
+        startDate: formData.startDate,
+        music: formData.music,
+        message: formData.message,
+        photos: photosData.filter(p => p.url)
+      };
+      
+      const pageId = await createPage(user.id, recipient, pageData);
+      
+      clearDraft();
+      
+      // 3. Navegar para a página de sucesso
+      navigate('/success', { state: { pageId } });
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      toast.error('Houve um erro ao salvar o presente. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const prompt = `Escreva uma carta de amor curta e muito emocionante para o casal ${formData.myName || 'meu amor'} e ${formData.loveName || 'amor'}. Destaque que estão juntos desde ${formData.startDate || 'sempre'}.`;
+      const prompt = isFriend 
+        ? `Escreva uma mensagem de carinho e amizade curta e muito emocionante de ${formData.myName || 'mim'} para ${formData.loveName || 'meu amigo'}. Destaque que estão juntos desde ${formData.startDate || 'sempre'}.`
+        : `Escreva uma carta de amor curta e muito emocionante para o casal ${formData.myName || 'meu amor'} e ${formData.loveName || 'amor'}. Destaque que estão juntos desde ${formData.startDate || 'sempre'}.`;
+      
       const generatedText = await generateMessage(prompt);
       setFormData(prev => ({ ...prev, message: generatedText }));
     } finally {
@@ -55,6 +108,13 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
+      {hasRestored && (
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+          <span>Rascunho recuperado.</span>
+          <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
+        </div>
+      )}
+
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 shadow-2xl border border-rose-100 dark:border-slate-800 relative overflow-hidden">
         
         <AnimatePresence mode="wait">
@@ -63,22 +123,19 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
-                  <Heart fill="currentColor" size={32} />
+                  <Heart size={32} fill="currentColor" />
                 </div>
-                <h2 className="text-2xl font-bold">Como vocês se chamam?</h2>
+                <h2 className="text-2xl font-bold">Quem são vocês?</h2>
               </div>
-              <div>
-                <label className="block font-medium mb-2">Seu nome</label>
+              <div className="flex flex-col gap-4">
                 <input 
                   type="text" 
                   value={formData.myName}
                   onChange={e => setFormData({...formData, myName: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-rose-400 focus:ring-4 ring-rose-100 transition-all" 
-                  placeholder="Ex: João" 
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-rose-400 focus:ring-4 ring-rose-100 transition-all text-center" 
+                  placeholder={title1}
                 />
-              </div>
-              <div>
-                <label className="block font-medium mb-2">Nome do amor</label>
+                <div className="text-center text-rose-300 font-serif italic">&</div>
                 <input 
                   type="text" 
                   value={formData.loveName}
@@ -119,18 +176,12 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
               </div>
               
               <div>
-                <label className="block font-medium mb-2 text-slate-700 dark:text-slate-300">As fotos mais marcantes (até 10)</label>
-                <label className="block border-2 border-dashed border-rose-200 dark:border-slate-700 bg-rose-50/50 dark:bg-slate-800/50 rounded-3xl p-8 text-center cursor-pointer hover:bg-rose-100/50 transition-colors">
-                  <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => {
-                    if (e.target.files) {
-                      setFormData({...formData, photos: Array.from(e.target.files)});
-                    }
-                  }} />
-                  <UploadCloud className="w-10 h-10 text-rose-400 mx-auto mb-3" />
-                  <p className="font-medium text-slate-700 dark:text-slate-300">Toque ou arraste as fotos aqui</p>
-                  <p className="text-xs text-slate-500 mt-2">JPEG, PNG ou HEIC até 10MB</p>
-                  {formData.photos.length > 0 && <p className="text-sm text-rose-500 mt-2 font-semibold">{formData.photos.length} foto(s) selecionada(s)</p>}
-                </label>
+                <PhotoUploadWithCaption 
+                  photos={formData.photos} 
+                  onChange={(photos) => setFormData({...formData, photos})}
+                  maxPhotos={10}
+                  themeColor="rose"
+                />
               </div>
 
               <div>
@@ -142,7 +193,7 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
                     value={formData.music}
                     onChange={e => setFormData({...formData, music: e.target.value})}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-12 pr-5 outline-none focus:border-rose-400 focus:ring-4 ring-rose-100 transition-all" 
-                    placeholder="Buscar música (Ex: Perfect Ed Sheeran)" 
+                    placeholder="Colar Link do YouTube ou Nome da Música" 
                   />
                 </div>
               </div>
@@ -180,27 +231,32 @@ export default function LoveWizard({ onBack }: { onBack: () => void }) {
         </AnimatePresence>
 
         <div className="mt-10 flex gap-4">
-          <button 
-            onClick={prevStep}
-            className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors"
-          >
+          <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
             <ChevronLeft size={24} />
           </button>
           
-          <button 
-            onClick={step === 4 ? handleFinish : nextStep}
-            disabled={
-              (step === 1 && (!formData.myName || !formData.loveName)) ||
-              (step === 2 && !formData.startDate)
-            }
-            className="flex-1 bg-rose-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-rose-200 hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:shadow-none"
-          >
-            {step === 4 ? 'Criar Presente Mágico' : 'Continuar'} 
-            {step < 4 && <ChevronRight size={24} />}
+          <button onClick={() => setShowPreview(true)} title="Ver Prévia" className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 hover:bg-rose-100 transition-colors">
+            <Eye size={24} />
+          </button>
+
+          <button onClick={step === 4 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && (!formData.myName || !formData.loveName))} className="flex-1 bg-rose-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-rose-200 hover:bg-rose-600 transition-colors disabled:opacity-50">
+            {isSaving ? <Loader2 className="animate-spin" size={24} /> : step === 4 ? 'Gerar Presente' : 'Continuar'} 
+            {!isSaving && step < 4 && <ChevronRight size={24} />}
           </button>
         </div>
 
       </div>
+
+      <PreviewModal 
+        isOpen={showPreview} 
+        onClose={() => setShowPreview(false)} 
+        pageData={{
+          ...formData,
+          name1: formData.myName,
+          name2: formData.loveName,
+          photos: formData.photos.map(p => ({ url: p.preview || '', caption: p.caption }))
+        }} 
+      />
     </div>
   );
 }
