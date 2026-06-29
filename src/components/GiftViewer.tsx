@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Music, Loader2, Gift, Calendar, MapPin } from 'lucide-react';
+import { Play, Music, Loader2, Gift, Calendar, MapPin, MessageCircle, Heart, Flag, GraduationCap, Flower2, Shield, Baby, Gem, HeartHandshake, Users } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 // Contador Dinâmico Exato (Estilo Glassmorphism Escuro)
@@ -192,8 +192,9 @@ function AudioPlayerTop({ src, searchQuery, forcePlay }: { src?: string, searchQ
   );
 }
 
-function FloatingParticles() {
-  const [particles, setParticles] = useState<{id: number, left: number, delay: number, size: number, duration: number}[]>([]);
+// Partículas Flutuantes
+function FloatingParticles({ particlesColor }: { particlesColor?: string }) {
+  const [particles, setParticles] = useState<Array<{id: number, left: number, delay: number, size: number, duration: number}>>([]);
   useEffect(() => {
     // Generate 15 random particles
     const p = Array.from({length: 15}).map((_, i) => ({
@@ -223,7 +224,7 @@ function FloatingParticles() {
             delay: p.delay,
             ease: "linear" 
           }}
-          className="absolute rounded-full bg-white blur-[1px]"
+          className={`absolute rounded-full blur-[1px] ${particlesColor || 'bg-white'}`}
           style={{ left: `${p.left}%`, width: p.size, height: p.size }}
         />
       ))}
@@ -239,6 +240,107 @@ interface GiftViewerProps {
 export default function GiftViewer({ pageData, isPreviewMode = false }: GiftViewerProps) {
   const [isOpened, setIsOpened] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  
+  // Mapeamento de Temas
+  const getThemeConfig = (template: string) => {
+    switch (template) {
+      case 'casamento':
+        return {
+          primaryColorClass: 'text-amber-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]',
+          closedTitle: 'Um convite para você',
+          Icon: Gem,
+          particlesColor: 'bg-amber-100/60'
+        };
+      case 'amor':
+      case 'historia-amor':
+      case 'pedido-namoro':
+      case 'dia-namorados':
+        return {
+          primaryColorClass: 'text-rose-500',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]',
+          closedTitle: 'Uma declaração para você',
+          Icon: Heart,
+          particlesColor: 'bg-rose-200/60'
+        };
+      case 'mae':
+      case 'dia-maes':
+        return {
+          primaryColorClass: 'text-pink-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(244,114,182,0.5)]',
+          closedTitle: 'Um presente muito especial',
+          Icon: Flower2,
+          particlesColor: 'bg-pink-200/60'
+        };
+      case 'pai':
+      case 'dia-pais':
+        return {
+          primaryColorClass: 'text-blue-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(96,165,250,0.5)]',
+          closedTitle: 'Uma homenagem para você',
+          Icon: Shield,
+          particlesColor: 'bg-blue-200/60'
+        };
+      case 'aniversario':
+        return {
+          primaryColorClass: 'text-orange-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]',
+          closedTitle: 'Uma surpresa de aniversário',
+          Icon: Gift,
+          particlesColor: 'bg-orange-200/60'
+        };
+      case 'filho':
+      case 'filha':
+      case 'nascimento':
+      case 'cha-bebe':
+        return {
+          primaryColorClass: 'text-emerald-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]',
+          closedTitle: 'Um presente especial',
+          Icon: Baby,
+          particlesColor: 'bg-emerald-200/60'
+        };
+      case 'formatura':
+        return {
+          primaryColorClass: 'text-emerald-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]',
+          closedTitle: 'Uma homenagem para você',
+          Icon: GraduationCap,
+          particlesColor: 'bg-emerald-200/60'
+        };
+      case 'avo':
+      case 'avo-f':
+      case 'homenagem-avo-f':
+      case 'avo-m':
+      case 'homenagem-avo-m':
+        return {
+          primaryColorClass: 'text-purple-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(192,132,252,0.5)]',
+          closedTitle: 'Um presente muito especial',
+          Icon: HeartHandshake,
+          particlesColor: 'bg-purple-200/60'
+        };
+      case 'amigo':
+      case 'amiga':
+        return {
+          primaryColorClass: 'text-cyan-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]',
+          closedTitle: 'Um presente para você',
+          Icon: Users,
+          particlesColor: 'bg-cyan-200/60'
+        };
+      default:
+        return {
+          primaryColorClass: 'text-rose-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]',
+          closedTitle: 'Um presente para você',
+          Icon: Gift,
+          particlesColor: 'bg-white/60'
+        };
+    }
+  };
+
+  const theme = getThemeConfig(pageData?.template);
 
   useEffect(() => {
     if (!isOpened || !pageData?.photos || pageData.photos.length <= 1) return;
@@ -265,12 +367,18 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
         </Helmet>
       )}
       <div className={`w-full ${isPreviewMode ? '' : 'max-w-md'} h-[100dvh] relative bg-black shadow-2xl overflow-hidden flex flex-col`}>
+        {/* Botão de Denúncia (Visível após abrir) */}
+        {isOpened && !isPreviewMode && (
+          <a href="mailto:contato@presentemagic.com.br?subject=Denúncia de Conteúdo - Presente Mágico" title="Denunciar conteúdo impróprio" className="absolute top-4 right-4 z-[70] p-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white/50 hover:text-white/80 transition-all">
+            <Flag className="w-4 h-4" />
+          </a>
+        )}
         <AnimatePresence>
           {!isOpened && (
             <motion.div exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }} className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-3xl px-6">
-              <motion.button onClick={() => setIsOpened(true)} className="flex flex-col items-center gap-6 p-8 bg-white/5 border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm">
-                <Gift className="w-16 h-16 text-rose-400 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]" />
-                <h2 className="text-2xl font-serif text-white text-center">Um presente para você</h2>
+              <motion.button onClick={() => setIsOpened(true)} className="flex flex-col items-center gap-6 p-8 bg-white/5 border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm group">
+                <theme.Icon className={`w-16 h-16 ${theme.primaryColorClass} ${theme.shadowClass} group-hover:scale-110 transition-transform duration-500 ${pageData?.template === 'casamento' || pageData?.template === 'amor' ? 'animate-pulse' : ''}`} />
+                <h2 className="text-2xl font-serif text-white text-center">{theme.closedTitle}</h2>
                 
                 {pageData.message && (
                   <div className="w-full py-4 border-y border-white/10 my-2">
@@ -284,7 +392,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
                   <div className="w-full flex flex-col items-center gap-2 mb-2">
                     {pageData.date && (
                       <div className="flex items-center gap-2 text-white/90 text-xs font-medium tracking-wide bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
-                        <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                        <Calendar className={`w-3.5 h-3.5 ${theme.primaryColorClass}`} />
                         <span>
                           {new Date(pageData.date + 'T12:00:00').toLocaleDateString('pt-BR')}
                           {pageData.time && ` às ${pageData.time}`}
@@ -293,7 +401,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
                     )}
                     {pageData.address && (
                       <div className="flex items-center gap-2 text-white/90 text-[11px] max-w-[280px] text-center bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
-                        <MapPin className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
+                        <MapPin className={`w-3.5 h-3.5 flex-shrink-0 ${theme.primaryColorClass}`} />
                         <span className="truncate">{pageData.address}</span>
                       </div>
                     )}
@@ -335,7 +443,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/20 to-black/60 pointer-events-none" />
 
         <div className="relative z-20 flex flex-col h-full w-full">
-          {isOpened && <FloatingParticles />}
+          {isOpened && <FloatingParticles particlesColor={theme.particlesColor} />}
           {isOpened && (pageData.music || pageData.musicUrl || pageData.audio) && <AudioPlayerTop searchQuery={pageData.music} src={pageData.musicUrl || pageData.audio} forcePlay={isOpened} />}
           
           <div className="flex-1" />
@@ -381,7 +489,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
               <motion.div initial={{ opacity: 0 }} animate={isOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 1.8 }} className="w-full flex flex-col items-center gap-2 mb-6">
                 {pageData.date && (
                   <div className="flex items-center gap-2 text-white/90 text-xs font-medium tracking-wide bg-black/30 px-5 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.2)]">
-                    <Calendar className="w-4 h-4 text-rose-400" />
+                    <Calendar className={`w-4 h-4 ${theme.primaryColorClass}`} />
                     <span>
                       {new Date(pageData.date + 'T12:00:00').toLocaleDateString('pt-BR')}
                       {pageData.time && ` às ${pageData.time}`}
@@ -390,7 +498,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
                 )}
                 {pageData.address && (
                   <div className="flex items-center gap-2 text-white/90 text-[11px] max-w-[280px] text-center bg-black/30 px-5 py-2 rounded-full backdrop-blur-md border border-white/10 mt-1 shadow-[0_4px_15px_rgba(0,0,0,0.2)]">
-                    <MapPin className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                    <MapPin className={`w-4 h-4 flex-shrink-0 ${theme.primaryColorClass}`} />
                     <span className="truncate">{pageData.address}</span>
                   </div>
                 )}
@@ -425,6 +533,29 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
               </AnimatePresence>
             </motion.div>
           </motion.div>
+
+          {/* RODAPÉ WHITE-LABEL OU PADRÃO */}
+          <motion.div initial={{ opacity: 0 }} animate={isOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 2.5 }} className="absolute bottom-6 w-full flex justify-center px-4 z-[60]">
+            {pageData.creator_plan === 'agency' ? (
+              <div className="flex flex-col items-center">
+                {pageData.agency_logo_url && (
+                  <img src={pageData.agency_logo_url} alt={pageData.agency_name || "Agência"} className="h-8 object-contain mb-2 opacity-80" />
+                )}
+                <p className="text-[10px] text-white/50 tracking-wider uppercase mb-2">Experiência organizada por {pageData.agency_name || "Cerimonial"}</p>
+                {pageData.agency_whatsapp && (
+                  <a href={`https://wa.me/${pageData.agency_whatsapp}?text=Olá! Adorei o presente interativo e gostaria de um orçamento para o meu evento.`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-4 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-semibold border border-white/10 transition-all shadow-lg pointer-events-auto">
+                    <MessageCircle className="w-3.5 h-3.5" /> Fale Conosco
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center pointer-events-auto">
+                <p className="text-[10px] text-white/50 tracking-wider uppercase flex items-center gap-1">Feito com <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> por Presente Mágico</p>
+                <a href="https://presentemagic.com.br" target="_blank" rel="noreferrer" className="mt-1 text-[10px] text-white/80 font-bold hover:text-white transition-colors">Crie o seu também</a>
+              </div>
+            )}
+          </motion.div>
+
         </div>
       </div>
     </div>

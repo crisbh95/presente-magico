@@ -1,4 +1,5 @@
 import { supabase } from '../supabase/config';
+import imageCompression from 'browser-image-compression';
 
 export interface PhotoData {
   url: string;
@@ -10,14 +11,15 @@ export interface PageData {
   user_id: string; // no supabase costumamos usar snake_case
   template: string;
   data: any;
+  views?: number;
   created_at: string;
   status: 'active' | 'pending_payment';
 }
 
 // Salva uma nova página no Supabase
 export const createPage = async (userId: string, template: string, data: any): Promise<string> => {
-  // Geramos um ID amigável de 8 caracteres
-  const shortId = Math.random().toString(36).substring(2, 10);
+  // Geramos um ID criptograficamente seguro e url-friendly
+  const shortId = window.crypto.randomUUID().replace(/-/g, '');
   
   const newPage = {
     id: shortId,
@@ -55,20 +57,32 @@ export const updatePage = async (pageId: string, userId: string, data: any): Pro
   return true;
 };
 
-// Busca uma página específica pelo ID
-export const getPageById = async (pageId: string): Promise<PageData | null> => {
-  const { data, error } = await supabase
-    .from('pages')
-    .select('*')
-    .eq('id', pageId)
-    .single();
-    
-  if (error) {
-    console.error("Erro ao buscar página:", error);
-    return null;
-  }
+// Busca uma página específica pelo ID com o perfil do dono (N+1 Resolvido)
+export const getPageById = async (pageId: string): Promise<any | null> => {
+  // Chamamos direto a RPC unificada que busca a página e o plano do criador de uma vez
+  const rpcRes = await supabase.rpc('get_page_with_profile', { p_page_id: pageId });
   
-  return data as PageData;
+  if (!rpcRes.error && rpcRes.data && rpcRes.data.length > 0) {
+    return rpcRes.data[0];
+  } else {
+    // Fallback: Se a RPC nova não existir (usuário não rodou o script), tentamos o método antigo
+    let { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('id', pageId)
+      .single();
+      
+    if (error || !data) {
+      const fallbackRpc = await supabase.rpc('get_public_page', { p_page_id: pageId });
+      if (!fallbackRpc.error && fallbackRpc.data && fallbackRpc.data.length > 0) {
+        data = fallbackRpc.data[0];
+      } else {
+        console.error("Erro ao buscar página:", error || fallbackRpc.error);
+        return null;
+      }
+    }
+    return data;
+  }
 };
 
 // Busca todas as páginas criadas por um usuário específico
@@ -108,9 +122,23 @@ export const uploadPhoto = async (file: File, userId: string): Promise<string> =
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}/${Math.random().toString(36).substring(2)}.${fileExt}`;
   
+  let fileToUpload = file;
+  if (file.type.startsWith('image/')) {
+    try {
+      fileToUpload = await imageCompression(file, {
+        maxSizeMB: 0.4,
+        maxWidthOrHeight: 1080,
+        useWebWorker: true,
+        initialQuality: 0.8,
+      });
+    } catch (error) {
+      console.warn("Erro na compressão de imagem, usando original", error);
+    }
+  }
+  
   const { error } = await supabase.storage
     .from('photos')
-    .upload(fileName, file);
+    .upload(fileName, fileToUpload);
     
   if (error) {
     console.error("Erro ao subir foto:", error);
@@ -186,8 +214,11 @@ export interface UserProfile {
   email: string;
   role: 'user' | 'admin';
   plan: 'free' | 'premium';
-  plan_type?: 'lifetime' | 'monthly' | 'annual' | null;
+  plan_type?: 'lifetime' | 'monthly' | 'annual' | 'agency' | null;
   subscription_end?: string | null;
+  agency_name?: string | null;
+  agency_logo_url?: string | null;
+  agency_whatsapp?: string | null;
 }
 
 export interface PaymentRequest {
@@ -211,7 +242,10 @@ export const getProfile = async (userId: string): Promise<UserProfile | null> =>
     return null;
   }
 
-  if (data.plan === 'premium' && data.subscription_end && new Date(data.subscription_end) < new Date()) {
+  // Don't downgrade owners
+  const isOwner = data.email === 'crisbh95@gmail.com' || data.email === 'contato@presentemagico.com.br' || data.role === 'admin';
+
+  if (!isOwner && data.plan === 'premium' && data.subscription_end && new Date(data.subscription_end) < new Date()) {
     await supabase
       .from('profiles')
       .update({ plan: 'free', plan_type: null, subscription_end: null })
@@ -322,4 +356,20 @@ export const getUserPaymentRequest = async (userId: string): Promise<PaymentRequ
     return null;
   }
   return data as PaymentRequest | null;
+};
+
+export const updateAgencyProfile = async (
+  userId: string, 
+  agencyData: { agency_name?: string, agency_logo_url?: string, agency_whatsapp?: string }
+): Promise<boolean> => {
+  const { error } = await supabase
+    .from('profiles')
+    .update(agencyData)
+    .eq('id', userId);
+    
+  if (error) {
+    console.error("Erro ao atualizar perfil de agência:", error);
+    throw new Error(error.message);
+  }
+  return true;
 };

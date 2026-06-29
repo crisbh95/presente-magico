@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Edit3, Share2, BarChart2, LogOut, Loader2, Trash2, CreditCard, User as UserIcon, LayoutDashboard, ShieldAlert, CheckCircle2, Gift, ExternalLink } from 'lucide-react';
+import { Plus, Edit3, Share2, BarChart2, LogOut, Loader2, Trash2, CreditCard, User as UserIcon, LayoutDashboard, ShieldAlert, CheckCircle2, Gift, ExternalLink, Building, Image as ImageIcon, Save } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserPages, deletePage, getProfile, getTotalPagesCount, getPremiumCount } from '../services/db';
+import { getUserPages, deletePage, getTotalPagesCount, getPremiumCount, updateAgencyProfile, uploadPhoto } from '../services/db';
 import { supabase } from '../supabase/config';
 import type { PageData, UserProfile } from '../services/db';
 import toast from 'react-hot-toast';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [pages, setPages] = useState<PageData[]>([]);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const currentTab = location.pathname.split('/')[1] || 'dashboard';
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || user?.email === 'crisbh95@gmail.com' || user?.email === 'contato@presentemagico.com.br';
 
   useEffect(() => {
     if (!user) {
@@ -28,12 +27,8 @@ export default function Dashboard() {
       if (!user) return;
       try {
         setLoading(true);
-        const [userPages, userProfile] = await Promise.all([
-          getUserPages(user.id),
-          getProfile(user.id)
-        ]);
-        setPages(userPages || []);
-        setProfile(userProfile);
+        const pagesData = await getUserPages(user.id);
+        setPages(pagesData || []);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         toast.error("Erro ao carregar seus dados");
@@ -78,6 +73,8 @@ export default function Dashboard() {
         return <ProfileTab user={user} profile={profile} />;
       case 'plans':
         return <PlansTab profile={profile} />;
+      case 'agency':
+        return (profile?.plan_type === 'agency' || isAdmin) ? <AgencyTab user={user} profile={profile} /> : <DashboardHome pages={pages} profile={profile} onDelete={handleDelete} />;
       case 'admin':
         return isAdmin ? <div className="p-8">Conteúdo Admin em breve</div> : null;
       default:
@@ -111,6 +108,9 @@ export default function Dashboard() {
           <nav className="space-y-2">
             <SidebarLink to="/dashboard" icon={<LayoutDashboard />} label="Meus Presentes" active={currentTab === 'dashboard'} />
             <SidebarLink to="/plans" icon={<CreditCard />} label="Planos" active={currentTab === 'plans'} />
+            {(profile?.plan_type === 'agency' || isAdmin) && (
+              <SidebarLink to="/agency" icon={<Building />} label="Minha Marca" active={currentTab === 'agency'} />
+            )}
             <SidebarLink to="/profile" icon={<UserIcon />} label="Perfil" active={currentTab === 'profile' || currentTab === 'settings'} />
             {isAdmin && (
               <SidebarLink to="/admin" icon={<ShieldAlert />} label="Admin" active={currentTab === 'admin'} />
@@ -148,8 +148,12 @@ export default function Dashboard() {
       
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-start p-2 pt-2 z-50" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <MobileLink to="/dashboard" icon={<LayoutDashboard />} label="Painel" active={currentTab === 'dashboard'} />
-        <MobileLink to="/create" icon={<Plus />} label="Criar" active={false} highlight />
+        {!isAdmin && <MobileLink to="/create" icon={<Plus />} label="Criar" active={false} highlight />}
+        {(profile?.plan_type === 'agency' || isAdmin) && (
+          <MobileLink to="/agency" icon={<Building />} label="Marca" active={currentTab === 'agency'} />
+        )}
         <MobileLink to="/plans" icon={<CreditCard />} label="Planos" active={currentTab === 'plans'} />
+        {isAdmin && <MobileLink to="/admin" icon={<ShieldAlert />} label="Admin" active={currentTab === 'admin'} />}
         <MobileLink to="/profile" icon={<UserIcon />} label="Perfil" active={currentTab === 'profile' || currentTab === 'settings'} />
       </div>
     </div>
@@ -222,7 +226,7 @@ function DashboardHome({ pages, profile, onDelete }: { pages: PageData[], profil
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pages.map((page) => (
-            <PageCard key={page.id} page={page} onDelete={onDelete} />
+            <PageCard key={page.id} page={page} onDelete={onDelete} isPremium={profile?.plan === 'premium' || profile?.role === 'admin'} />
           ))}
         </div>
       )}
@@ -245,16 +249,25 @@ function StatCard({ title, value, icon }: { title: string, value: string, icon: 
   );
 }
 
-function PageCard({ page, onDelete }: { page: PageData, onDelete: (id: string | undefined) => void }) {
+function PageCard({ page, onDelete, isPremium }: { page: PageData, onDelete: (id: string | undefined) => void, isPremium?: boolean }) {
   const date = new Date(page.created_at || Date.now()).toLocaleDateString('pt-BR');
   const typeLabel = page.template === 'amor' || page.template === 'love' ? 'Amor' : page.template === 'aniversario' || page.template === 'birthday' ? 'Aniversário' : page.template === 'wedding' || page.template === 'casamento' ? 'Casamento' : 'Especial';
   const typeColor = page.template === 'amor' || page.template === 'love' ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-blue-100 text-blue-600 border-blue-200';
   
+  const views = page.views || 0;
+  const isWarning = views >= 25;
+  const isBlocked = views >= 30;
+
   return (
     <div className="p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col h-full">
       <div className="flex justify-between items-start mb-4">
         <div>
           <span className={`text-[10px] font-bold px-3 py-1 uppercase tracking-wider rounded-full mb-3 inline-block border ${typeColor}`}>{typeLabel}</span>
+          {!isPremium && (
+            <span className={`text-[10px] font-bold px-3 py-1 uppercase tracking-wider rounded-full mb-3 ml-2 inline-block border ${isBlocked ? 'bg-rose-100 text-rose-600 border-rose-200' : isWarning ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`} title="Limite de visualizações do plano grátis">
+              {views}/30 views
+            </span>
+          )}
           <h3 className="font-bold text-xl line-clamp-1 text-slate-800 dark:text-white">{page.data?.name || page.data?.name1 || 'Presente'}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">Criado em {date}</p>
         </div>
@@ -425,21 +438,21 @@ function PlansTab({ profile }: { profile: UserProfile | null }) {
           price="R$ 49,90"
           oldPrice="R$ 119"
           period="/ano"
-          description="Menos de R$ 4,16/mês"
+          description="Acesso garantido (R$ 4,16/mês)"
           features={['Presentes Ilimitados', 'Todos os Templates', 'Sem marca d\'água', 'IA Ilimitada', 'Economize 58%']}
-          highlight={false}
+          highlight={true}
+          badge="🔥 Mais Popular"
           onSubscribe={() => handleSubscribe('annual')}
         />
         <PlanCard
-          name="Vitalício"
-          price="R$ 99,90"
+          name="Agência"
+          price="R$ 149,90"
           oldPrice="R$ 299"
-          period="Único"
-          description="Acesso para sempre"
-          features={['Presentes Ilimitados', 'Todos os Templates', 'Sem marca d\'água', 'IA Ilimitada', 'Sem mensalidades']}
-          highlight={true}
-          badge="🔥 Lançamento"
-          onSubscribe={() => handleSubscribe('lifetime')}
+          period="/mês"
+          description="Para Eventos e Produtoras"
+          features={['Tudo do plano Premium', 'Adicione sua Logomarca', 'Sem Footer Presente Mágico', 'Suporte Prioritário', 'Ideal para Cerimonialistas']}
+          highlight={false}
+          onSubscribe={() => handleSubscribe('agency')}
         />
       </div>
 
@@ -543,6 +556,129 @@ function ProfileTab({ user, profile }: { user: any, profile: UserProfile | null 
           <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
             <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">Membro desde</p>
             <p className="font-bold">{new Date().toLocaleDateString('pt-BR')}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AgencyTab({ user, profile }: { user: any, profile: UserProfile | null }) {
+  const [agencyName, setAgencyName] = useState(profile?.agency_name || '');
+  const [agencyWhatsapp, setAgencyWhatsapp] = useState(profile?.agency_whatsapp || '');
+  const [agencyLogoUrl, setAgencyLogoUrl] = useState(profile?.agency_logo_url || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    
+    setIsUploading(true);
+    const toastId = toast.loading('Fazendo upload da logomarca...');
+    
+    try {
+      const url = await uploadPhoto(file, user.id);
+      setAgencyLogoUrl(url);
+      toast.success('Logomarca atualizada!', { id: toastId });
+    } catch (error) {
+      toast.error('Erro ao fazer upload da imagem', { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    const toastId = toast.loading('Salvando configurações...');
+    
+    try {
+      await updateAgencyProfile(user.id, {
+        agency_name: agencyName,
+        agency_whatsapp: agencyWhatsapp,
+        agency_logo_url: agencyLogoUrl
+      });
+      toast.success('Marca atualizada com sucesso!', { id: toastId });
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      toast.error('Erro ao salvar configurações', { id: toastId });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white">
+            <Building className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Minha Empresa (White-Label)</h2>
+            <p className="text-slate-500">Substitua a marca do Presente Mágico pela sua.</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Logomarca da Agência</label>
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-800 overflow-hidden relative group">
+                {agencyLogoUrl ? (
+                  <img src={agencyLogoUrl} alt="Logo" className="w-full h-full object-contain p-2" />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-slate-400" />
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <label className="cursor-pointer text-white text-xs font-bold px-3 py-1 bg-white/20 rounded-full backdrop-blur-md">
+                    Trocar
+                    <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploading} />
+                  </label>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-slate-500 mb-3">Recomendamos uma imagem com fundo transparente (PNG).</p>
+                <label className="cursor-pointer px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-semibold text-sm transition inline-block">
+                  {isUploading ? 'Enviando...' : 'Fazer Upload'}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploading} />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nome da Empresa</label>
+            <input 
+              type="text" 
+              value={agencyName}
+              onChange={e => setAgencyName(e.target.value)}
+              placeholder="Ex: Ana Eventos"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">WhatsApp Profissional (Opcional)</label>
+            <input 
+              type="text" 
+              value={agencyWhatsapp}
+              onChange={e => setAgencyWhatsapp(e.target.value.replace(/\D/g, ''))}
+              placeholder="Ex: 5511999999999"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button 
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              {isSaving ? 'Salvando...' : 'Salvar Configurações'}
+            </button>
           </div>
         </div>
       </div>

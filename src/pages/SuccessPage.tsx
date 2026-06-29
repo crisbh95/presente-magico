@@ -66,20 +66,33 @@ export default function SuccessPage() {
         <p className="text-slate-500 mb-8">A mágica foi gerada com sucesso. Agora é só compartilhar e emocionar.</p>
 
         <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl mb-8 flex flex-col items-center">
-          <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 inline-block">
-            <QRCodeSVG 
-              id="qrcode"
-              value={scanUrl} 
-              size={200}
-              bgColor={"#ffffff"}
-              fgColor={"#0f172a"}
-              level={"H"}
-              includeMargin={false}
-            />
+          
+          <div className="relative group mx-auto mb-8">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-rose-500 via-purple-500 to-indigo-500 rounded-[2rem] blur opacity-40 group-hover:opacity-70 transition duration-500"></div>
+            <div className="relative bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col items-center">
+              <QRCodeSVG 
+                id="qrcode"
+                value={scanUrl} 
+                size={220}
+                bgColor={"#ffffff"}
+                fgColor={"#0f172a"}
+                level={"H"}
+                includeMargin={false}
+                imageSettings={{
+                  src: "https://api.iconify.design/lucide:gift.svg?color=%23e11d48",
+                  x: undefined,
+                  y: undefined,
+                  height: 48,
+                  width: 48,
+                  excavate: true,
+                }}
+              />
+              <p className="mt-5 font-bold text-slate-800 tracking-widest uppercase text-[10px]">Aponte a Câmera</p>
+            </div>
           </div>
           
           {isLocalhost && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mb-4 max-w-xs text-center bg-amber-50 dark:bg-amber-950/30 p-2 rounded-lg">
+            <p className="text-xs text-amber-600 dark:text-amber-400 mb-6 max-w-xs text-center bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-900/50">
               Nota: Como o site está rodando no seu computador (localhost), o seu celular não conseguirá abrir o link ao ler o QR Code. Isso funcionará perfeitamente quando publicarmos o site.
             </p>
           )}

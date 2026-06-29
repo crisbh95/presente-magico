@@ -34,7 +34,7 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
   const handleFinish = async () => {
     if (!user) {
       localStorage.setItem('pendingCreate', JSON.stringify({recipient: 'outro', draftKey: 'draft_aniversario', timestamp: Date.now() }));
-      navigate('/login', { state: { from: { pathname: '/create' } } });
+      navigate('/login', { state: { from: { pathname: '/create' }, message: 'Falta pouco! Crie sua conta grátis para salvar seu presente e receber o link.' } });
       return;
     }
     setIsSaving(true);

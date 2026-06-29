@@ -7,7 +7,7 @@ const corsHeaders = {
 }
 
 const PLAN_DURATIONS: Record<string, number | null> = {
-  lifetime: null,
+  agency: 30,
   monthly: 30,
   annual: 365,
 }

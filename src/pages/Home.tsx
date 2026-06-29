@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Gift, Sparkles, Music, Star, CheckCircle2, Clock, LogOut, User as UserIcon } from 'lucide-react';
+import { Heart, Gift, Sparkles, Music, Star, CheckCircle2, Clock, LogOut, User as UserIcon, Flower2, Shield, Baby, Gem, HeartHandshake, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import OnboardingModal from '../components/OnboardingModal';
 
 const CARDS = [
   { id: 'amor', title: 'Amor', icon: Heart, color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-200' },
-  { id: 'aniversario', title: 'Aniversário', icon: Gift, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-200' },
-  { id: 'mae', title: 'Mãe', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-50', border: 'border-purple-200' },
-  { id: 'pai', title: 'Pai', icon: Star, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
-  { id: 'filho', title: 'Filho(a)', icon: Heart, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-  { id: 'irmao', title: 'Irmão(ã)', icon: Star, color: 'text-cyan-500', bg: 'bg-cyan-50', border: 'border-cyan-200' },
-  { id: 'avo', title: 'Avô(ó)', icon: Sparkles, color: 'text-indigo-500', bg: 'bg-indigo-50', border: 'border-indigo-200' },
-  { id: 'amigo', title: 'Amigo(a)', icon: Gift, color: 'text-fuchsia-500', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
+  { id: 'aniversario', title: 'Aniversário', icon: Gift, color: 'text-orange-500', bg: 'bg-orange-50', border: 'border-orange-200' },
+  { id: 'mae', title: 'Mãe', icon: Flower2, color: 'text-pink-500', bg: 'bg-pink-50', border: 'border-pink-200' },
+  { id: 'pai', title: 'Pai', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-50', border: 'border-blue-200' },
+  { id: 'filho', title: 'Filho(a)', icon: Baby, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  { id: 'casamento', title: 'Casamento', icon: Gem, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-200' },
+  { id: 'avo', title: 'Avô(ó)', icon: HeartHandshake, color: 'text-purple-500', bg: 'bg-purple-50', border: 'border-purple-200' },
+  { id: 'amigo', title: 'Amigo(a)', icon: Users, color: 'text-cyan-500', bg: 'bg-cyan-50', border: 'border-cyan-200' },
 ];
 
 export default function Home() {
@@ -155,22 +155,83 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO SECTION: Os Cartões */}
-      <section id="criar" className="pt-32 pb-20 px-4 md:px-8 relative">
-        <div className="max-w-5xl mx-auto text-center">
+      {/* HERO SECTION: Split Layout with iPhone Mockup */}
+      <section id="criar" className="pt-32 pb-20 px-4 md:px-8 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+          
+          {/* Texto Emocional */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex-1 text-center md:text-left z-20"
           >
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-slate-900 dark:text-white">
-              Que presente você deseja <br className="hidden md:block"/> 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-600">criar hoje?</span>
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+              Emocione quem você ama em <br className="hidden md:block"/> 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-600">menos de 2 minutos.</span>
             </h1>
-            <p className="text-xl text-slate-500 max-w-2xl mx-auto">
-              Selecione um tema abaixo para começar a criar sua página mágica. Você receberá um QR Code para presentear quem você ama.
+            <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-xl mx-auto md:mx-0">
+              Crie uma página mágica com fotos, música e contador de tempo para marcar a história de vocês. Perfeito para presentear com um QR Code em uma data especial.
             </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+              <a href="#temas" className="px-8 py-4 bg-rose-500 text-white rounded-full font-bold text-lg hover:bg-rose-600 hover:scale-105 transition-all shadow-xl shadow-rose-500/30 flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Criar Presente Agora
+              </a>
+              <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Teste Grátis
+              </div>
+            </div>
           </motion.div>
+
+          {/* Celular Mockup Flutuante */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="flex-1 w-full max-w-sm flex justify-center perspective-[1000px] z-20"
+          >
+            <div className="relative w-[280px] h-[580px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl shadow-rose-500/20 border border-slate-800 rotate-y-[-10deg] rotate-x-[5deg] hover:rotate-y-0 hover:rotate-x-0 transition-transform duration-700 ease-out group">
+              {/* Notch */}
+              <div className="absolute top-0 inset-x-0 h-7 flex justify-center z-50">
+                <div className="w-32 h-6 bg-slate-900 rounded-b-3xl"></div>
+              </div>
+              
+              {/* Tela do App Mágico simulado */}
+              <div className="w-full h-full bg-black rounded-[2.2rem] overflow-hidden relative border-2 border-slate-900">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-900/40 to-black z-0" />
+                
+                {/* Corações subindo */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+                  <motion.div animate={{ y: [-20, -100], x: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute bottom-10 left-10 text-rose-500"><Heart size={20} fill="currentColor" /></motion.div>
+                  <motion.div animate={{ y: [0, -150], x: [0, -15, 10, 0] }} transition={{ repeat: Infinity, duration: 6, delay: 1 }} className="absolute bottom-20 right-10 text-purple-500"><Heart size={16} fill="currentColor" /></motion.div>
+                </div>
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 text-center">
+                  <Gift className="w-16 h-16 text-rose-400 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)] mb-4 animate-bounce" />
+                  <h2 className="text-2xl font-serif text-white mb-2">Um presente para você</h2>
+                  <p className="text-white/80 text-sm font-serif italic max-w-[200px] mx-auto">
+                    "Algumas lembranças merecem viver para sempre..."
+                  </p>
+                  <button className="mt-8 bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform">Abrir Presente</button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* TEMAS SECTION */}
+      <section id="temas" className="pt-20 pb-20 px-4 md:px-8 relative bg-slate-50 dark:bg-slate-900/50">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight text-slate-900 dark:text-white">
+              Escolha um Tema
+            </h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+              Selecione uma ocasião para começar.
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 relative z-20 perspective-[1000px]">
             {CARDS.map((card, i) => {
@@ -199,6 +260,13 @@ export default function Home() {
                 </motion.div>
               );
             })}
+          </div>
+          
+          <div className="mt-8 text-center animate-in fade-in duration-700 delay-500">
+            <p className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 px-4 py-2 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Planos gratuitos possuem limite de 30 visualizações. Crie e teste sem compromisso.
+            </p>
           </div>
         </div>
       </section>
@@ -377,13 +445,14 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="bg-slate-950 py-12 text-center text-slate-500 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-4">
-          <p>© 2026 Presente Mágico. Todos os direitos reservados.</p>
-          <div className="flex gap-6">
-            <Link to="/privacidade" className="hover:text-slate-300 transition">Política de Privacidade</Link>
-            <Link to="/contato" className="hover:text-slate-300 transition">Fale Conosco</Link>
+          <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between text-slate-500 gap-4">
+            <p>&copy; {new Date().getFullYear()} Presente Mágico. Todos os direitos reservados.</p>
+            <div className="flex gap-4 text-sm">
+              <Link to="/privacidade" className="hover:text-white transition">Privacidade</Link>
+              <Link to="/termos" className="hover:text-white transition">Termos de Uso</Link>
+              <Link to="/contato" className="hover:text-white transition">Contato</Link>
+            </div>
           </div>
-        </div>
       </footer>
     </div>
       )}

@@ -10,7 +10,9 @@ export default function Login() {
   const location = useLocation();
   const { signInWithGoogle, resetPassword } = useAuth();
   
-  const [isLogin, setIsLogin] = useState(location.pathname !== '/register');
+  const customMessage = location.state?.message;
+  
+  const [isLogin, setIsLogin] = useState(customMessage ? false : location.pathname !== '/register');
   const [isResetting, setIsResetting] = useState(location.pathname === '/forgot-password');
   
   const [email, setEmail] = useState('');
@@ -46,8 +48,15 @@ export default function Login() {
     } catch (err: any) {
       // Traduzir mensagens de erro do Supabase
       const msg = err.message || '';
-      if (msg.includes('Invalid login credentials')) setError('E-mail ou senha incorretos.');
-      else if (msg.includes('already registered')) setError('Este e-mail já está em uso.');
+      if (msg.includes('Invalid login credentials')) {
+        setError('E-mail ou senha incorretos.');
+        if (!isLogin) {
+          setError('Este e-mail parece não estar cadastrado. Tente "Criar Conta".');
+        } else {
+          setError('E-mail ou senha incorretos. Tem certeza que já criou uma conta?');
+        }
+      }
+      else if (msg.includes('already registered')) setError('Este e-mail já está em uso. Tente fazer Login.');
       else if (msg.includes('Password should be')) setError('A senha deve ter pelo menos 6 caracteres.');
       else setError('Ocorreu um erro inesperado. Tente novamente.');
     } finally {
@@ -80,6 +89,12 @@ export default function Login() {
           </div>
         </div>
         
+        {customMessage && (
+          <div className="bg-primary/10 text-primary px-4 py-3 rounded-xl mb-6 text-center text-sm font-medium border border-primary/20">
+            {customMessage}
+          </div>
+        )}
+
         <h2 className="text-3xl font-extrabold text-center mb-2">
           {isResetting ? 'Recuperar Senha' : isLogin ? 'Bem-vindo de volta' : 'Criar Conta'}
         </h2>

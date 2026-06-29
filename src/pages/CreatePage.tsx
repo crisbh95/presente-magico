@@ -11,7 +11,8 @@ import KidsWizard from '../components/forms/KidsWizard';
 import PetWizard from '../components/forms/PetWizard';
 import GraduationWizard from '../components/forms/GraduationWizard';
 import { useAuth } from '../contexts/AuthContext';
-import { getProfile, getUserPages } from '../services/db';
+import { getUserPages } from '../services/db';
+import { trackEvent } from '../services/analytics';
 import { Crown, Lock } from 'lucide-react';
 
 const RECIPIENTS = [
@@ -55,24 +56,19 @@ const OCCASIONS = [
 export default function CreatePage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPremium } = useAuth();
   const [step, setStep] = useState(1);
   const [recipient, setRecipient] = useState('');
   const [occasion, setOccasion] = useState('');
   const [mappedWizard, setMappedWizard] = useState('');
 
-  const [isPremiumUser, setIsPremiumUser] = useState(false);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
 
   // Verificação Anti-Fraude (Limita usuários Free a 1 presente)
   useEffect(() => {
     const checkLimit = async () => {
       if (!user) return;
-      const userProfile = await getProfile(user.id);
-      
-      if (userProfile?.plan === 'premium') {
-        setIsPremiumUser(true);
-      } else {
+      if (!isPremium) {
         const userPages = await getUserPages(user.id);
         if (userPages.length >= 1) {
           setHasReachedLimit(true);
@@ -80,7 +76,7 @@ export default function CreatePage() {
       }
     };
     checkLimit();
-  }, [user]);
+  }, [user, isPremium]);
 
   // Modo Visitante: restaurar fluxo após login
   useEffect(() => {
@@ -163,7 +159,7 @@ export default function CreatePage() {
       setStep(1);
       setRecipient('');
     } else {
-      navigate('/');
+      navigate(user ? '/dashboard' : '/');
     }
   };
   
@@ -182,11 +178,9 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 flex flex-col items-center justify-center">
       <div className="max-w-5xl w-full">
-        {step > 1 && (
-          <button onClick={handleBack} className="mb-6 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium flex items-center gap-2">
-            ← Voltar
-          </button>
-        )}
+        <button onClick={handleBack} className="mb-6 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium flex items-center gap-2">
+          ← Voltar
+        </button>
         
         <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-12 text-slate-800 dark:text-slate-100">
           {step === 1 ? 'Para quem é este presente?' : 'Qual é a ocasião?'}
@@ -200,21 +194,24 @@ export default function CreatePage() {
               key={item.id}
               onClick={() => {
                 // Bloqueio de plano Premium (só para usuários logados)
-                if (user && 'isPremium' in item && item.isPremium && !isPremiumUser) {
+                if (user && 'isPremium' in item && item.isPremium && !isPremium) {
                   navigate('/plans');
                   return;
                 }
 
                 // Bloqueio de limite Free (só para usuários logados)
-                if (user && hasReachedLimit && !isPremiumUser) {
+                if (user && hasReachedLimit && !isPremium) {
+                  trackEvent('PREMIUM_BLOCKED_FREE_LIMIT', { user_id: user.id, selected_recipient: item.id });
                   navigate('/plans');
                   return;
                 }
 
                 if (step === 1) {
+                  trackEvent('RECIPIENT_SELECTED', { recipient_id: item.id, is_premium_item: !!item.isPremium });
                   setRecipient(item.id);
                   setStep(2);
                 } else {
+                  trackEvent('OCCASION_SELECTED', { occasion_id: item.id, recipient_id: recipient });
                   setOccasion(item.id);
                 }
               }}
@@ -226,7 +223,7 @@ export default function CreatePage() {
             >
               {'isPremium' in item && item.isPremium && (
                 <div className="absolute top-3 right-3 text-amber-500 flex items-center justify-center bg-amber-50 dark:bg-amber-500/10 p-1.5 rounded-full" title="Exclusivo Premium">
-                  {!isPremiumUser ? <Lock className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
+                  {!isPremium ? <Lock className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
                 </div>
               )}
               <span className="text-4xl md:text-5xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</span>

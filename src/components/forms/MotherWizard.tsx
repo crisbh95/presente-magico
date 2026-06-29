@@ -39,7 +39,7 @@ export default function MotherWizard({ onBack, recipient = 'mae' }: { onBack: ()
   const handleFinish = async () => {
     if (!user) {
       localStorage.setItem('pendingCreate', JSON.stringify({ recipient, draftKey: `draft_${recipient}`, timestamp: Date.now() }));
-      navigate('/login', { state: { from: { pathname: '/create' } } });
+      navigate('/login', { state: { from: { pathname: '/create' }, message: 'Falta pouco! Crie sua conta grátis para salvar seu presente e receber o link.' } });
       return;
     }
     setIsSaving(true);
