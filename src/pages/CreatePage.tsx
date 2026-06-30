@@ -139,17 +139,29 @@ export default function CreatePage() {
   // When both are selected, map to the correct wizard
   useEffect(() => {
     if (recipient && occasion) {
-      let w = 'amor'; // fallback
-      
-      if (occasion === 'casamento' || occasion === 'pedido-namoro') w = 'casamento';
-      else if (occasion === 'aniversario') w = 'aniversario';
+      let w = 'amor'; // fallback for love-related
+
+      // Casamento (só casamento de verdade, não pedido de namoro)
+      if (occasion === 'casamento') w = 'casamento';
+      // Pedido de namoro → LoveWizard (não WeddingWizard!)
+      else if (occasion === 'pedido-namoro' || occasion === 'dia-namorados' || occasion === 'historia-amor') w = 'amor';
+      // Aniversário e Aposentadoria → homenagem pessoal
+      else if (occasion === 'aniversario' || occasion === 'aposentadoria' || occasion === 'comemoracao') w = 'aniversario';
+      // Formatura
       else if (occasion === 'formatura') w = 'formatura';
+      // Memorial
       else if (occasion === 'memorial') w = 'memorial';
+      // Pet
       else if (occasion === 'pet' || recipient === 'pet') w = 'pets';
+      // Infantil
       else if (occasion === 'nascimento' || occasion === 'cha-bebe' || recipient === 'filho' || recipient === 'filha') w = 'infantil';
+      // Mãe / Avó
       else if (recipient === 'mae' || occasion === 'dia-maes' || occasion === 'homenagem-avo-f' || recipient === 'avo-f') w = 'mae';
+      // Pai / Avô
       else if (recipient === 'pai' || occasion === 'dia-pais' || occasion === 'homenagem-avo-m' || recipient === 'avo-m') w = 'pai';
-      
+      // Agradecimento e Desculpas → usa LoveWizard com modo amigo
+      else if (occasion === 'agradecimento' || occasion === 'desculpas' || occasion === 'personalizado') w = 'amor';
+
       setMappedWizard(w);
       setStep(3);
     }
