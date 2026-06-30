@@ -137,30 +137,66 @@ export default function CreatePage() {
   }, [location]);
 
   // When both are selected, map to the correct wizard
+  // REGRA: A OCASIÃO sempre tem prioridade sobre o destinatário
   useEffect(() => {
     if (recipient && occasion) {
-      let w = 'amor'; // fallback for love-related
+      let w = 'amor'; // fallback
 
-      // Casamento (só casamento de verdade, não pedido de namoro)
-      if (occasion === 'casamento') w = 'casamento';
-      // Pedido de namoro → LoveWizard (não WeddingWizard!)
-      else if (occasion === 'pedido-namoro' || occasion === 'dia-namorados' || occasion === 'historia-amor') w = 'amor';
-      // Aniversário e Aposentadoria → homenagem pessoal
-      else if (occasion === 'aniversario' || occasion === 'aposentadoria' || occasion === 'comemoracao') w = 'aniversario';
+      // === OCASIÕES ESPECÍFICAS (sempre prioridade) ===
+      
+      // Amor / Namoro
+      if (occasion === 'historia-amor' || occasion === 'pedido-namoro' || occasion === 'dia-namorados') {
+        w = 'amor';
+      }
+      // Casamento (cerimônia)
+      else if (occasion === 'casamento') {
+        w = 'casamento';
+      }
+      // Aniversário / Comemoração / Aposentadoria
+      else if (occasion === 'aniversario' || occasion === 'comemoracao' || occasion === 'aposentadoria') {
+        w = 'aniversario';
+      }
+      // Dia das Mães / Homenagem Avó
+      else if (occasion === 'dia-maes' || occasion === 'homenagem-avo-f') {
+        w = 'mae';
+      }
+      // Dia dos Pais / Homenagem Avô
+      else if (occasion === 'dia-pais' || occasion === 'homenagem-avo-m') {
+        w = 'pai';
+      }
       // Formatura
-      else if (occasion === 'formatura') w = 'formatura';
+      else if (occasion === 'formatura') {
+        w = 'formatura';
+      }
       // Memorial
-      else if (occasion === 'memorial') w = 'memorial';
+      else if (occasion === 'memorial') {
+        w = 'memorial';
+      }
       // Pet
-      else if (occasion === 'pet' || recipient === 'pet') w = 'pets';
-      // Infantil
-      else if (occasion === 'nascimento' || occasion === 'cha-bebe' || recipient === 'filho' || recipient === 'filha') w = 'infantil';
-      // Mãe / Avó
-      else if (recipient === 'mae' || occasion === 'dia-maes' || occasion === 'homenagem-avo-f' || recipient === 'avo-f') w = 'mae';
-      // Pai / Avô
-      else if (recipient === 'pai' || occasion === 'dia-pais' || occasion === 'homenagem-avo-m' || recipient === 'avo-m') w = 'pai';
-      // Agradecimento e Desculpas → usa LoveWizard com modo amigo
-      else if (occasion === 'agradecimento' || occasion === 'desculpas' || occasion === 'personalizado') w = 'amor';
+      else if (occasion === 'pet') {
+        w = 'pets';
+      }
+      // Nascimento / Chá de Bebê
+      else if (occasion === 'nascimento' || occasion === 'cha-bebe') {
+        w = 'infantil';
+      }
+      // Agradecimento / Desculpas / Personalizado → LoveWizard (adapta pelo recipient)
+      else if (occasion === 'agradecimento' || occasion === 'desculpas' || occasion === 'personalizado') {
+        w = 'amor';
+      }
+      // === FALLBACK PELO DESTINATÁRIO (só se a ocasião não decidiu) ===
+      else if (recipient === 'mae' || recipient === 'avo-f') {
+        w = 'mae';
+      }
+      else if (recipient === 'pai' || recipient === 'avo-m') {
+        w = 'pai';
+      }
+      else if (recipient === 'pet') {
+        w = 'pets';
+      }
+      else if (recipient === 'filho' || recipient === 'filha') {
+        w = 'infantil';
+      }
 
       setMappedWizard(w);
       setStep(3);
