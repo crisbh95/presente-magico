@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Gift, Sparkles, Search, Cake, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import { useDraft } from '../../hooks/useDraft';
 import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
@@ -25,6 +27,7 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -68,11 +71,18 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const generateAI = () => {
-    setFormData(prev => ({
-      ...prev,
-      message: `Feliz Aniversário, ${formData.name}! Que a vida continue te surpreendendo e que este novo ciclo de ${formData.age} anos seja repleto de amor, paz e muitas conquistas. Você merece o mundo!`
-    }));
+  const generateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const prompt = buildUserPrompt('aniversario', {
+        name: formData.name,
+        age: formData.age,
+      });
+      const text = await generateMessage(prompt, 'aniversario');
+      setFormData(prev => ({ ...prev, message: text }));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -179,8 +189,9 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
               </div>
 
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className="bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-indigo-100 transition">
-                  <Sparkles size={16} /> Gerar mensagem com IA
+                <button onClick={generateAI} disabled={isGenerating} className="bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-indigo-100 transition disabled:opacity-50">
+                  {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  {isGenerating ? 'Escrevendo...' : 'Gerar mensagem com IA'}
                 </button>
               </div>
 

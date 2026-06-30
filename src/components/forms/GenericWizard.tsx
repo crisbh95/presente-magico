@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Sparkles, Mic, Loader2, Eye, Heart, Gift, HandHeart, Star } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import { useDraft } from '../../hooks/useDraft';
 import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
@@ -181,6 +183,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const config = OCCASION_CONFIG[occasion] || DEFAULT_CONFIG;
   const c = config.color === 'amber' || config.color === 'rose' || config.color === 'violet' || config.color === 'emerald' ? config.color : 'purple';
@@ -231,11 +234,15 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
     }
   };
 
-  const generateAI = () => {
-    setFormData(prev => ({
-      ...prev,
-      message: config.aiMessage
-    }));
+  const generateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const prompt = buildUserPrompt(occasion, { name: formData.name });
+      const text = await generateMessage(prompt, occasion);
+      setFormData(prev => ({ ...prev, message: text }));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const IconComponent = config.icon === 'heart' ? Heart : config.icon === 'gift' ? Gift : config.icon === 'handHeart' ? HandHeart : Star;
@@ -330,8 +337,9 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                 <h2 className="text-2xl font-bold">{config.messageTitle}</h2>
               </div>
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className={`${cls.aiBtn} rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 ${cls.aiBtnHover} transition`}>
-                  <Sparkles size={16} /> Me ajude a escrever
+                <button onClick={generateAI} disabled={isGenerating} className={`${cls.aiBtn} rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 ${cls.aiBtnHover} transition disabled:opacity-50`}>
+                  {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  {isGenerating ? 'Escrevendo...' : 'Me ajude a escrever'}
                 </button>
               </div>
               <textarea 

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Shield, Sparkles, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import { useDraft } from '../../hooks/useDraft';
 import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
@@ -11,7 +13,7 @@ import PreviewModal from '../PreviewModal';
 
 import toast from 'react-hot-toast';
 
-export default function FatherWizard({ onBack, recipient = 'pai' }: { onBack: () => void, recipient?: string }) {
+export default function FatherWizard({ onBack, recipient = 'pai', occasion }: { onBack: () => void, recipient?: string, occasion?: string }) {
   const navigate = useNavigate();
   const [step, setStep] = useWizardStep(`draft_${recipient}`);
   const [showPreview, setShowPreview] = useState(false);
@@ -23,12 +25,10 @@ export default function FatherWizard({ onBack, recipient = 'pai' }: { onBack: ()
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const isAvo = recipient === 'avo-m' || recipient.includes('avo');
   const titleText = isAvo ? "Qual o nome do seu avô?" : "Qual o nome do seu pai?";
-  const aiMessage = isAvo
-    ? "Vô, obrigado por ser meu maior exemplo e herói. Todos os ensinamentos que me passou construíram a pessoa que sou hoje. Te admiro muito!"
-    : "Pai, obrigado por ser meu maior exemplo e herói. Todos os ensinamentos que me passou construíram a pessoa que sou hoje. Te admiro muito!";
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -71,11 +71,16 @@ export default function FatherWizard({ onBack, recipient = 'pai' }: { onBack: ()
     }
   };
 
-  const generateAI = () => {
-    setFormData(prev => ({
-      ...prev,
-      message: aiMessage
-    }));
+  const generateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const occ = occasion || (isAvo ? 'homenagem-avo-m' : 'dia-pais');
+      const prompt = buildUserPrompt(occ, { name: formData.name });
+      const text = await generateMessage(prompt, occ);
+      setFormData(prev => ({ ...prev, message: text }));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -149,8 +154,9 @@ export default function FatherWizard({ onBack, recipient = 'pai' }: { onBack: ()
                 <h2 className="text-2xl font-bold">Mensagem Especial</h2>
               </div>
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className="bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-blue-100 transition">
-                  <Sparkles size={16} /> Me ajude a escrever
+                <button onClick={generateAI} disabled={isGenerating} className="bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-blue-100 transition disabled:opacity-50">
+                  {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  {isGenerating ? 'Escrevendo...' : 'Me ajude a escrever'}
                 </button>
               </div>
               <textarea 

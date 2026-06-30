@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Feather, Sparkles, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import PreviewModal from '../PreviewModal';
 
@@ -24,6 +26,7 @@ export default function MemorialWizard({ onBack }: { onBack: () => void }) {
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -65,11 +68,15 @@ export default function MemorialWizard({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const generateAI = () => {
-    setFormData(prev => ({
-      ...prev,
-      bio: `Uma pessoa incrível que tocou a vida de muitos. Sua luz, alegria e bondade jamais serão esquecidas. Deixou um legado de amor que viverá para sempre em nossos corações.`
-    }));
+  const generateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const prompt = buildUserPrompt('memorial', { name: formData.name });
+      const text = await generateMessage(prompt, 'memorial');
+      setFormData(prev => ({ ...prev, bio: text }));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -140,8 +147,9 @@ export default function MemorialWizard({ onBack }: { onBack: () => void }) {
                 <h2 className="text-2xl font-bold">Biografia / Homenagem</h2>
               </div>
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-slate-200 transition">
-                  <Sparkles size={16} /> Auxílio IA
+                <button onClick={generateAI} disabled={isGenerating} className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-slate-200 transition disabled:opacity-50">
+                  {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  {isGenerating ? 'Escrevendo...' : 'Auxílio IA'}
                 </button>
               </div>
               <textarea 

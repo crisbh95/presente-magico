@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     }
 
     // Processar o corpo da requisição
-    const { prompt, type = 'message' } = await req.json();
+    const { prompt, type = 'message', systemPrompt } = await req.json();
 
     const apiKey = Deno.env.get('QWEN_API_KEY') || Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) {
@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
     const baseURL = Deno.env.get('QWEN_BASE_URL') || 'https://openrouter.ai/api/v1/chat/completions';
     const modelName = Deno.env.get('QWEN_MODEL') || 'qwen/qwen-2.5-72b-instruct';
 
-    const systemContext = type === 'caption' ? CAPTION_SYSTEM_INSTRUCTION : SYSTEM_INSTRUCTION;
+    // Usar systemPrompt personalizado se fornecido, senão usar o padrão
+    const systemContext = systemPrompt || (type === 'caption' ? CAPTION_SYSTEM_INSTRUCTION : SYSTEM_INSTRUCTION);
 
     // Chamada à IA
     const response = await fetch(baseURL, {

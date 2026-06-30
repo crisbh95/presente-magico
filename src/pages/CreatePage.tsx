@@ -230,8 +230,8 @@ export default function CreatePage() {
   if (step === 3 && mappedWizard) {
     if (mappedWizard === 'amor') return <LoveWizard onBack={handleBack} recipient={recipient} occasion={occasion} />;
     if (mappedWizard === 'aniversario') return <BirthdayWizard onBack={handleBack} />;
-    if (mappedWizard === 'mae') return <MotherWizard onBack={handleBack} recipient={recipient} />;
-    if (mappedWizard === 'pai') return <FatherWizard onBack={handleBack} recipient={recipient} />;
+    if (mappedWizard === 'mae') return <MotherWizard onBack={handleBack} recipient={recipient} occasion={occasion} />;
+    if (mappedWizard === 'pai') return <FatherWizard onBack={handleBack} recipient={recipient} occasion={occasion} />;
     if (mappedWizard === 'memorial') return <MemorialWizard onBack={handleBack} />;
     if (mappedWizard === 'casamento') return <WeddingWizard onBack={handleBack} />;
     if (mappedWizard === 'infantil') return <KidsWizard onBack={handleBack} />;

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, GraduationCap, Sparkles, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import PreviewModal from '../PreviewModal';
 
@@ -25,6 +27,7 @@ export default function GraduationWizard({ onBack }: { onBack: () => void }) {
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -68,11 +71,18 @@ export default function GraduationWizard({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const generateAI = () => {
-    setFormData(prev => ({
-      ...prev,
-      message: `Todo esforço valeu a pena! Parabéns pela formatura. Que esta conquista seja apenas o início de uma jornada brilhante e cheia de sucesso. O mundo é seu!`
-    }));
+  const generateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const prompt = buildUserPrompt('formatura', {
+        name: formData.name,
+        course: formData.course,
+      });
+      const text = await generateMessage(prompt, 'formatura');
+      setFormData(prev => ({ ...prev, message: text }));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -151,8 +161,9 @@ export default function GraduationWizard({ onBack }: { onBack: () => void }) {
                 <h2 className="text-2xl font-bold">Mensagem de Sucesso</h2>
               </div>
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-emerald-100 transition">
-                  <Sparkles size={16} /> Me ajude a escrever
+                <button onClick={generateAI} disabled={isGenerating} className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-emerald-100 transition disabled:opacity-50">
+                  {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                  {isGenerating ? 'Escrevendo...' : 'Me ajude a escrever'}
                 </button>
               </div>
               <textarea 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Heart, Sparkles, Search, Loader2, Eye } from 'lucide-react';
 import { generateMessage } from '../../services/ai';
+import { buildUserPrompt } from '../../services/aiPrompts';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
@@ -86,23 +87,12 @@ export default function LoveWizard({ onBack, recipient = 'amor', occasion }: { o
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      let requestType = 'uma carta de amor';
-      let targetName = formData.loveName || 'meu amor';
-      
-      if (recipient.includes('mae') || recipient === 'mae') {
-        requestType = 'uma mensagem de muito amor e gratidão de filho(a) para mãe';
-        targetName = formData.loveName || 'mãe';
-      } else if (recipient.includes('pai')) {
-        requestType = 'uma mensagem de muito amor e gratidão de filho(a) para pai';
-        targetName = formData.loveName || 'pai';
-      } else if (isFriend) {
-        requestType = 'uma mensagem linda de carinho e grande amizade';
-        targetName = formData.loveName || 'amigo(a)';
-      }
-      
-      const prompt = `Escreva ${requestType} curta e muito emocionante de ${formData.myName || 'mim'} para ${targetName}. Destaque que estamos juntos e construindo memórias incríveis desde ${formData.startDate || 'sempre'}.`;
-      
-      const generatedText = await generateMessage(prompt);
+      const prompt = buildUserPrompt(occasion || 'historia-amor', {
+        senderName: formData.myName,
+        recipientName: formData.loveName,
+        startDate: formData.startDate,
+      });
+      const generatedText = await generateMessage(prompt, occasion);
       setFormData(prev => ({ ...prev, message: generatedText }));
     } finally {
       setIsGenerating(false);

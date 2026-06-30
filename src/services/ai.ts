@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/config';
 import { getProfile } from './db';
 import toast from 'react-hot-toast';
+import { buildSystemPrompt, buildCaptionSystemPrompt } from './aiPrompts';
 
 const FALLBACK_PHRASES = [
   "As palavras não alcançam o tamanho do sentimento que tenho por você. Nossa conexão é muito especial.",
@@ -20,7 +21,7 @@ const PHOTO_FALLBACKS = [
   "O amor mora nos pequenos detalhes, como este aqui."
 ];
 
-export async function generateMessage(prompt: string): Promise<string> {
+export async function generateMessage(prompt: string, occasionId?: string): Promise<string> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
@@ -31,8 +32,10 @@ export async function generateMessage(prompt: string): Promise<string> {
       }
     }
 
+    const systemPrompt = occasionId ? buildSystemPrompt(occasionId) : undefined;
+
     const { data, error } = await supabase.functions.invoke('generate-ai', {
-      body: { prompt, type: 'message' }
+      body: { prompt, type: 'message', systemPrompt }
     });
 
     if (error) throw error;
@@ -45,7 +48,7 @@ export async function generateMessage(prompt: string): Promise<string> {
   }
 }
 
-export async function generatePhotoCaption(context: string = ''): Promise<string> {
+export async function generatePhotoCaption(context: string = '', occasionId?: string): Promise<string> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
@@ -56,9 +59,11 @@ export async function generatePhotoCaption(context: string = ''): Promise<string
       }
     }
 
+    const systemPrompt = occasionId ? buildCaptionSystemPrompt(occasionId) : undefined;
     const prompt = "Gere uma legenda carinhosa e criativa para uma foto especial " + context;
+
     const { data, error } = await supabase.functions.invoke('generate-ai', {
-      body: { prompt, type: 'caption' }
+      body: { prompt, type: 'caption', systemPrompt }
     });
 
     if (error) throw error;
