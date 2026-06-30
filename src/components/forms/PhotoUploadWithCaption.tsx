@@ -1,4 +1,4 @@
-import { UploadCloud, X, Sparkles, Loader2 } from 'lucide-react';
+import { UploadCloud, X, Sparkles, Loader2, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generatePhotoCaption } from '../../services/ai';
 import { useState } from 'react';
@@ -62,6 +62,22 @@ const THEME_STYLES = {
 export default function PhotoUploadWithCaption({ photos, onChange, maxPhotos = 10, themeColor = 'slate' }: Props) {
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
   const s = THEME_STYLES[themeColor as keyof typeof THEME_STYLES] || THEME_STYLES.slate;
+
+  const handleReplacePhoto = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const updated = [...photos];
+      if (updated[index].preview) {
+        URL.revokeObjectURL(updated[index].preview);
+      }
+      updated[index] = {
+        ...updated[index],
+        file,
+        preview: URL.createObjectURL(file)
+      };
+      onChange(updated);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -133,8 +149,17 @@ export default function PhotoUploadWithCaption({ photos, onChange, maxPhotos = 1
                   <X size={14} />
                 </button>
                 
-                <div className="w-full md:w-32 h-32 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
-                  <img src={photo.preview} alt="Preview" className="w-full h-full object-cover" />
+                <div className="w-full md:w-32 h-32 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden relative">
+                  <img src={photo.preview || '/placeholder.png'} alt="Preview" className="w-full h-full object-cover" />
+                  <label className="absolute bottom-2 right-2 p-1.5 bg-slate-900/80 hover:bg-slate-900 text-white rounded-lg border border-white/20 cursor-pointer transition shadow-md flex items-center justify-center" title="Trocar Foto">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => handleReplacePhoto(idx, e)} 
+                    />
+                    <Edit2 size={12} />
+                  </label>
                 </div>
                 
                 <div className="flex-1 flex flex-col justify-center">

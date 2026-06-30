@@ -177,6 +177,7 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
                     placeholder="Buscar música (Ex: Parabéns da Xuxa)" 
                   />
                 </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 ml-1">💡 Dica: Cole o link de um vídeo do YouTube para tocar a música inteira!</p>
               </div>
             </motion.div>
           )}

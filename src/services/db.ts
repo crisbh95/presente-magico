@@ -373,3 +373,118 @@ export const updateAgencyProfile = async (
   }
   return true;
 };
+
+// Busca todos os perfis cadastrados para o painel administrativo
+export const getAllProfiles = async (): Promise<any[]> => {
+  const { data: profiles, error: profError } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (profError) {
+    console.error("Erro ao buscar todos os perfis:", profError);
+    return [];
+  }
+
+  // Busca contagem de páginas para cada usuário
+  const { data: pages, error: pagesError } = await supabase
+    .from('pages')
+    .select('user_id');
+
+  const pageCounts: Record<string, number> = {};
+  if (!pagesError && pages) {
+    pages.forEach((page: any) => {
+      pageCounts[page.user_id] = (pageCounts[page.user_id] || 0) + 1;
+    });
+  }
+
+  return profiles.map((p: any) => ({
+    ...p,
+    name: p.email ? p.email.split('@')[0] : 'Usuário',
+    gifts: pageCounts[p.id] || 0,
+    lastAccess: p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') : 'Sem dados',
+    status: p.status || 'active'
+  }));
+};
+
+// Exclui um perfil de usuário e todas as suas páginas associadas
+export const deleteUserProfile = async (userId: string): Promise<boolean> => {
+  // 1. Busca todas as páginas do usuário para poder excluir as mídias do storage
+  const { data: userPages } = await supabase
+    .from('pages')
+    .select('id')
+    .eq('user_id', userId);
+
+  if (userPages && userPages.length > 0) {
+    for (const page of userPages) {
+      try {
+        await deletePage(page.id, userId);
+      } catch (err) {
+        console.error(`Erro ao excluir página ${page.id} do usuário:`, err);
+      }
+    }
+  }
+
+  // 2. Deleta o perfil do usuário
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+
+  if (error) {
+    console.error("Erro ao excluir perfil de usuário:", error);
+    throw new Error(error.message);
+  }
+  return true;
+};
+
+// Altera o status (ativo/bloqueado) de um perfil de usuário
+export const updateUserStatus = async (userId: string, status: 'active' | 'blocked'): Promise<boolean> => {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ status })
+    .eq('id', userId);
+
+  if (error) {
+    console.error("Erro ao atualizar status do usuário:", error);
+    throw new Error(error.message);
+  }
+  return true;
+};
+
+// Altera o plano do usuário diretamente pelo painel admin
+export const updateUserPlan = async (userId: string, plan: 'free' | 'premium', planType: string | null = null): Promise<boolean> => {
+  const subscriptionEnd = plan === 'premium' 
+    ? (planType === 'monthly' ? new Date(Date.now() + 30 * 86400000).toISOString()
+       : planType === 'annual' ? new Date(Date.now() + 365 * 86400000).toISOString()
+       : null)
+    : null;
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ 
+      plan, 
+      plan_type: planType, 
+      subscription_end: subscriptionEnd 
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error("Erro ao atualizar plano do usuário:", error);
+    throw new Error(error.message);
+  }
+  return true;
+};
+
+// Salva a resposta/feedback de quem recebeu o presente no banco
+export const sendPageFeedback = async (pageId: string, message: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('page_feedback')
+    .insert([{ page_id: pageId, message }]);
+    
+  if (error) {
+    console.error("Erro ao enviar feedback:", error);
+    return false;
+  }
+  return true;
+};

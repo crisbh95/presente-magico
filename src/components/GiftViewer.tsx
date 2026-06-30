@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Music, Loader2, Gift, Calendar, MapPin, MessageCircle, Heart, Flag, GraduationCap, Flower2, Shield, Baby, Gem, HeartHandshake, Users, Star, Feather, PawPrint } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import { sendPageFeedback } from '../services/db';
 
 // Contador Dinâmico Exato (Estilo Glassmorphism Escuro)
 function LoveCounter({ startDate }: { startDate: string }) {
@@ -240,6 +241,29 @@ interface GiftViewerProps {
 export default function GiftViewer({ pageData, isPreviewMode = false }: GiftViewerProps) {
   const [isOpened, setIsOpened] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [showFinalScreen, setShowFinalScreen] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+
+  const handleSendFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackMsg.trim() || !pageData?.id) return;
+    setSubmittingFeedback(true);
+    try {
+      const success = await sendPageFeedback(pageData.id, feedbackMsg);
+      if (success) {
+        setFeedbackSent(true);
+        setFeedbackMsg('');
+      } else {
+        alert('Erro ao enviar mensagem. Tente novamente.');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
   
   // Mapeamento de Temas
   const getThemeConfig = (template: string) => {
@@ -408,11 +432,22 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
   const theme = getThemeConfig(pageData?.template);
 
   useEffect(() => {
-    if (!isOpened || !pageData?.photos || pageData.photos.length <= 1) return;
+    if (!isOpened || !pageData?.photos || pageData.photos.length === 0) return;
+    
+    if (pageData.photos.length === 1) {
+      const timer = setTimeout(() => {
+        setShowFinalScreen(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
     const interval = setInterval(() => {
       setCurrentPhoto((prev) => {
         if (prev === pageData.photos.length - 1) {
           clearInterval(interval);
+          setTimeout(() => {
+            setShowFinalScreen(true);
+          }, 5000);
           return prev;
         }
         return prev + 1;
@@ -434,16 +469,19 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
       <div className={`w-full ${isPreviewMode ? '' : 'max-w-md'} h-[100dvh] relative bg-black shadow-2xl overflow-hidden flex flex-col`}>
         {/* Botão de Denúncia (Visível após abrir) */}
         {isOpened && !isPreviewMode && (
-          <a href="mailto:contato@presentemagic.com.br?subject=Denúncia de Conteúdo - Presente Mágico" title="Denunciar conteúdo impróprio" className="absolute top-4 right-4 z-[70] p-2 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white/50 hover:text-white/80 transition-all">
-            <Flag className="w-4 h-4" />
+          <a href="mailto:contato@presentemagic.com.br?subject=Denúncia de Conteúdo - Presente Mágico" title="Denunciar conteúdo impróprio" className="absolute top-4 right-4 z-[70] p-2 text-white/20 hover:text-white/50 transition-all">
+            <Flag className="w-3.5 h-3.5" />
           </a>
         )}
         <AnimatePresence>
           {!isOpened && (
             <motion.div exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }} className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-3xl px-6">
               <motion.button onClick={() => setIsOpened(true)} className="flex flex-col items-center gap-6 p-8 bg-white/5 border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm group">
-                <theme.Icon className={`w-16 h-16 ${theme.primaryColorClass} ${theme.shadowClass} group-hover:scale-110 transition-transform duration-500 ${pageData?.template === 'casamento' || pageData?.template === 'amor' ? 'animate-pulse' : ''}`} />
-                <h2 className="text-2xl font-serif text-white text-center">{theme.closedTitle}</h2>
+                <theme.Icon className={`w-20 h-20 ${theme.primaryColorClass} ${theme.shadowClass} group-hover:scale-110 transition-transform duration-500 ${pageData?.template === 'casamento' || pageData?.template === 'amor' ? 'animate-pulse' : ''}`} />
+                <h1 className="text-3xl sm:text-4xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 text-center tracking-wide drop-shadow-[0_2px_10px_rgba(255,255,255,0.15)] leading-tight px-4 mt-2">
+                  {pageData.name || pageData.name1} {pageData.name2 ? `& ${pageData.name2}` : ''}
+                </h1>
+                <h2 className="text-xs font-sans tracking-[0.2em] text-white/50 uppercase text-center mt-1">{theme.closedTitle}</h2>
                 
                 {pageData.message && (
                   <div className="w-full py-4 border-y border-white/10 my-2">
@@ -536,11 +574,19 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
             </motion.h1>
             
             {/* Contador */}
-            {pageData.startDate && (
-              <motion.div initial={{ opacity: 0 }} animate={isOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 1.5 }} className="w-full mb-6">
-                <LoveCounter startDate={pageData.startDate} />
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {pageData.startDate && currentPhoto === 0 && !showFinalScreen && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, height: 0 }} 
+                  animate={{ opacity: 1, scale: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, scale: 0.95, height: 0 }}
+                  transition={{ duration: 0.5 }} 
+                  className="w-full mb-6 overflow-hidden"
+                >
+                  <LoveCounter startDate={pageData.startDate} />
+                </motion.div>
+              )}
+            </AnimatePresence>
             
             {/* Pontinhos do Slideshow */}
             {pageData.photos?.length > 1 && (
@@ -600,7 +646,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
           </motion.div>
 
           {/* RODAPÉ WHITE-LABEL OU PADRÃO */}
-          <motion.div initial={{ opacity: 0 }} animate={isOpened ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 2.5 }} className="absolute bottom-6 w-full flex justify-center px-4 z-[60]">
+          <motion.div initial={{ opacity: 0 }} animate={isOpened && !showFinalScreen ? { opacity: 1 } : { opacity: 0 }} transition={{ delay: 2.5 }} className="absolute bottom-6 w-full flex justify-center px-4 z-[60]">
             {pageData.creator_plan === 'agency' ? (
               <div className="flex flex-col items-center">
                 {pageData.agency_logo_url && (
@@ -620,6 +666,90 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
               </div>
             )}
           </motion.div>
+
+          {/* TELA FINAL DE EMOÇÃO & RESPOSTA */}
+          <AnimatePresence>
+            {isOpened && showFinalScreen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md px-6 text-center"
+              >
+                <FloatingParticles particlesColor={theme.particlesColor} />
+                
+                <div className="z-10 w-full max-w-sm flex flex-col items-center gap-6 p-6 bg-white/5 border border-white/10 rounded-[2.5rem] shadow-2xl relative overflow-hidden backdrop-blur-lg">
+                  <theme.Icon className={`w-16 h-16 ${theme.primaryColorClass} ${theme.shadowClass} animate-bounce`} />
+                  
+                  <h2 className="text-2xl font-serif font-extrabold text-white">
+                    {pageData.template === 'casamento' || pageData.template === 'amor' ? 'Para Sempre! ❤️' : 'Momento Especial! ✨'}
+                  </h2>
+                  
+                  {/* Contador Final */}
+                  {pageData.startDate && (
+                    <div className="w-full scale-90 opacity-95 my-1">
+                      <LoveCounter startDate={pageData.startDate} />
+                    </div>
+                  )}
+                  
+                  <p className="text-white/80 text-sm font-serif italic leading-relaxed px-2">
+                    {pageData.template === 'casamento' || pageData.template === 'amor' 
+                      ? '"Obrigado por fazer parte da minha história. Eu te amo muito!"' 
+                      : pageData.template === 'aniversario' 
+                      ? '"Que o seu dia seja repleto de amor, sorrisos e momentos inesquecíveis. Feliz Aniversário!"'
+                      : pageData.template === 'mae'
+                      ? '"Mãe, você é o meu maior tesouro. Obrigado por todo o carinho e amor incondicional!"'
+                      : pageData.template === 'pai'
+                      ? '"Pai, obrigado por ser meu herói, meu guia e meu maior amigo. Te amo!"'
+                      : '"Obrigado por fazer parte da minha jornada e por tornar minha vida mais feliz!"'}
+                  </p>
+
+                  <div className="w-full mt-4 pt-4 border-t border-white/10">
+                    {feedbackSent ? (
+                      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-emerald-400 text-xs font-semibold">
+                        Mensagem enviada com sucesso! Obrigado por responder. 🥰
+                      </motion.p>
+                    ) : (
+                      <form onSubmit={handleSendFeedback} className="space-y-3 pointer-events-auto">
+                        <label className="block text-[10px] text-white/50 uppercase tracking-widest font-semibold">
+                          Deixe uma resposta para quem te enviou:
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={feedbackMsg}
+                          onChange={(e) => setFeedbackMsg(e.target.value)}
+                          required
+                          disabled={submittingFeedback}
+                          placeholder="Escreva algo carinhoso..."
+                          className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xs text-white placeholder-white/30 outline-none focus:border-white/30 transition resize-none"
+                        />
+                        <button
+                          type="submit"
+                          disabled={submittingFeedback}
+                          className="w-full py-2.5 bg-white text-black hover:bg-white/90 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                        >
+                          {submittingFeedback ? <Loader2 size={12} className="animate-spin" /> : 'Enviar Resposta 💌'}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+
+                  <div className="w-full mt-6 pt-6 border-t border-white/10 flex flex-col items-center gap-2 pointer-events-auto">
+                    <p className="text-[10px] text-white/40 tracking-wider uppercase">Quer emocionar alguém também?</p>
+                    <a
+                      href="https://presentemagic.com.br"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-105 text-white rounded-full font-bold text-xs shadow-lg transition-transform"
+                    >
+                      Criar um Presente Mágico Grátis 🪄
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
       </div>

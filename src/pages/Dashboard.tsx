@@ -200,13 +200,14 @@ function MobileLink({ to, icon, label, active, highlight }: { to: string, icon: 
 }
 
 function DashboardHome({ pages, profile, onDelete }: { pages: PageData[], profile: UserProfile | null, onDelete: (id: string | undefined) => void }) {
+  const { isPremium, isAdmin } = useAuth();
   const totalViews = pages.reduce((sum, p) => sum + ((p as any).views || 0), 0);
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid sm:grid-cols-3 gap-6 mb-10">
         <StatCard title="Páginas Criadas" value={pages.length.toString()} icon={<Plus className="text-primary h-6 w-6" />} />
         <StatCard title="Total de Visualizações" value={totalViews.toString()} icon={<BarChart2 className="text-emerald-500 h-6 w-6" />} />
-        <StatCard title="Seu Plano" value={profile?.plan === 'premium' ? 'Premium' : 'Grátis'} icon={<CheckCircle2 className="text-rose-500 h-6 w-6" />} />
+        <StatCard title="Seu Plano" value={isPremium ? (isAdmin ? 'Premium (Admin)' : 'Premium') : 'Grátis'} icon={<CheckCircle2 className="text-rose-500 h-6 w-6" />} />
       </div>
 
       <div className="flex justify-between items-end mb-6">
@@ -340,8 +341,8 @@ function PlanCard({ name, price, oldPrice, period, description, features, highli
   );
 }
 
-function PlansTab({ profile }: { profile: UserProfile | null }) {
-  const { user } = useAuth();
+function PlansTab({ profile: _profile }: { profile: UserProfile | null }) {
+  const { user, isPremium } = useAuth();
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [totalPages, setTotalPages] = useState(0);
@@ -394,7 +395,7 @@ function PlansTab({ profile }: { profile: UserProfile | null }) {
     }
   };
 
-  if (profile?.plan === 'premium') {
+  if (isPremium) {
     return (
       <div className="max-w-4xl mx-auto animate-in fade-in duration-500">
         <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 p-10 rounded-[2.5rem] border border-emerald-200 dark:border-emerald-800 text-center shadow-lg relative overflow-hidden">
@@ -499,7 +500,7 @@ function PlansTab({ profile }: { profile: UserProfile | null }) {
 }
 
 function ProfileTab({ user, profile }: { user: any, profile: UserProfile | null }) {
-  const isPremium = profile?.plan === 'premium';
+  const { isPremium, isAdmin } = useAuth();
   const planTypeLabel = profile?.plan_type === 'monthly' ? 'Mensal'
     : profile?.plan_type === 'annual' ? 'Anual'
     : profile?.plan_type === 'lifetime' ? 'Vitalício'
@@ -536,7 +537,7 @@ function ProfileTab({ user, profile }: { user: any, profile: UserProfile | null 
         
         <h3 className="text-xl font-bold mb-1">{user?.email}</h3>
         <span className={`px-4 py-1.5 rounded-full text-sm font-semibold mb-6 uppercase tracking-wider ${isPremium ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
-          {isPremium ? '✦ Premium' : 'Grátis'}
+          {isPremium ? (isAdmin ? '✦ Admin' : '✦ Premium') : 'Grátis'}
         </span>
 
         {isPremium && planTypeLabel && (

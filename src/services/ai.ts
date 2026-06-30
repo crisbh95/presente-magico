@@ -26,7 +26,7 @@ export async function generateMessage(prompt: string, occasionId?: string): Prom
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const profile = await getProfile(session.user.id);
-      if (profile?.plan === 'free') {
+      if (profile?.plan === 'free' && profile?.role !== 'admin') {
         toast.error("A Inteligência Artificial é exclusiva do plano Premium.");
         throw new Error("PREMIUM_REQUIRED");
       }
@@ -53,7 +53,7 @@ export async function generatePhotoCaption(context: string = '', occasionId?: st
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const profile = await getProfile(session.user.id);
-      if (profile?.plan === 'free') {
+      if (profile?.plan === 'free' && profile?.role !== 'admin') {
         toast.error("A Inteligência Artificial é exclusiva do plano Premium.");
         throw new Error("PREMIUM_REQUIRED");
       }

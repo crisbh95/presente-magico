@@ -40,7 +40,7 @@ export function useDraft<T>(key: string, initialData: T) {
         if (Array.isArray(dataToSave[k])) {
           (dataToSave as any)[k] = (dataToSave[k] as any).map((item: any) => {
             if (item && typeof item === 'object' && item.file instanceof File) {
-              return { ...item, file: null, preview: null }; 
+              return { ...item, file: null, preview: item.preview }; 
             }
             return item;
           });

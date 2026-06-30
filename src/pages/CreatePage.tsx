@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import LoveWizard from '../components/forms/LoveWizard';
 import BirthdayWizard from '../components/forms/BirthdayWizard';
 import MotherWizard from '../components/forms/MotherWizard';
@@ -241,13 +241,21 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 flex flex-col items-center justify-center">
-      <div className="max-w-5xl w-full">
-        <button onClick={handleBack} className="mb-6 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium flex items-center gap-2">
-          ← Voltar
-        </button>
+    <div className="min-h-screen bg-[#050505] text-white py-12 px-4 sm:px-6 flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Efeito de brilho no fundo */}
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none opacity-60"></div>
+      
+      <div className="max-w-5xl w-full relative z-10">
+        <div className="flex justify-between items-center mb-10">
+          <button onClick={handleBack} className="text-white/50 hover:text-white hover:neon-text transition-all duration-300 font-medium flex items-center gap-2">
+            ← Voltar
+          </button>
+          <Link to="/" className="flex items-center group">
+            <img src="/logo.jpeg" alt="Presente Mágico" className="w-12 h-12 rounded-full border border-primary/30 shadow-[0_0_15px_rgba(255,0,127,0.3)] group-hover:neon-glow group-hover:scale-110 transition-all duration-300" />
+          </Link>
+        </div>
         
-        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-12 text-slate-800 dark:text-slate-100">
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-14 text-white drop-shadow-lg">
           {step === 1 ? 'Para quem é este presente?' : 'Qual é a ocasião?'}
         </h1>
         
@@ -280,10 +288,10 @@ export default function CreatePage() {
                   setOccasion(item.id);
                 }
               }}
-              className={`p-6 md:p-8 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/40 dark:shadow-none transition-all group relative overflow-hidden ${
+              className={`p-6 md:p-8 rounded-[1.5rem] flex flex-col items-center justify-center gap-4 bg-[#0a0a0a] border transition-all duration-300 group relative overflow-hidden ${
                 'isPremium' in item && item.isPremium 
-                  ? 'border-2 border-amber-200 dark:border-amber-500/30 hover:border-amber-400 hover:shadow-amber-500/20' 
-                  : 'border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-primary/20'
+                  ? 'border-amber-500/20 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(251,191,36,0.25)] hover:-translate-y-1' 
+                  : 'border-white/10 hover:border-primary/80 hover:neon-glow hover:-translate-y-1'
               }`}
             >
               {'isPremium' in item && item.isPremium && (
@@ -291,8 +299,8 @@ export default function CreatePage() {
                   {!isPremium ? <Lock className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
                 </div>
               )}
-              <span className="text-4xl md:text-5xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</span>
-              <span className="font-bold text-[13px] md:text-sm text-center text-slate-700 dark:text-slate-300 leading-tight">
+              <span className="text-4xl md:text-5xl mb-2 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 drop-shadow-md">{item.icon}</span>
+              <span className="font-bold text-[13px] md:text-sm text-center text-white/70 group-hover:text-white transition-colors leading-tight">
                 {item.name}
               </span>
             </motion.button>

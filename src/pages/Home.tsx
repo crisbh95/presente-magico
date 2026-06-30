@@ -107,13 +107,16 @@ export default function Home() {
                 ))}
               </motion.div>
               
-              <motion.h1
+              <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-500 tracking-tight"
+                className="flex flex-col items-center"
               >
-                PRESENTE MÁGICO
-              </motion.h1>
+                <img src="/logo.jpeg" alt="Presente Mágico" className="w-32 h-32 md:w-40 md:h-40 rounded-full mb-6 border-4 border-primary shadow-[0_0_40px_rgba(255,0,127,0.6)]" />
+                <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-500 tracking-tight">
+                  PRESENTE MÁGICO
+                </h1>
+              </motion.div>
             </>
           )}
         </div>
@@ -127,9 +130,12 @@ export default function Home() {
       {/* Header Simples */}
       <header className="fixed top-0 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
-          <div className="font-extrabold text-xl bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-purple-600">
-            Presente Mágico
-          </div>
+          <Link to="/" className="flex items-center gap-3 group">
+            <img src="/logo.jpeg" alt="Presente Mágico" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-lg border-2 border-primary/30 group-hover:neon-glow group-hover:scale-105 transition-all duration-300" />
+            <span className="font-extrabold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600 hidden sm:block group-hover:neon-text transition-all">
+              Presente Mágico
+            </span>
+          </Link>
           <nav className="hidden md:flex gap-6 items-center font-medium text-slate-600 dark:text-slate-300">
             <Link to="/create" className="hover:text-primary transition">Criar</Link>
             <a href="#funcionalidades" className="hover:text-primary transition">Funcionalidades</a>

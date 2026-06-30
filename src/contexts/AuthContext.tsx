@@ -23,34 +23,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isPremium = profile?.plan === 'premium' || profile?.role === 'admin';
   const isAdmin = profile?.role === 'admin' || user?.email === 'crisbh95@gmail.com' || user?.email === 'contato@presentemagico.com.br';
+  const isPremium = profile?.plan === 'premium' || isAdmin;
 
   const loadProfile = async (userId: string) => {
-    const data = await getProfile(userId);
-    setProfile(data);
+    try {
+      const data = await getProfile(userId);
+      setProfile(data);
+    } catch (err) {
+      console.error("Erro ao carregar perfil:", err);
+      setProfile(null);
+    }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        loadProfile(session.user.id).then(() => setLoading(false));
-      } else {
-        setProfile(null);
-        setLoading(false);
+    let active = true;
+
+    async function initSession() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (active) {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await loadProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar sessão inicial:", err);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
       }
-    });
+    }
+
+    initSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setLoading(true);
-        await loadProfile(session.user.id);
+        try {
+          await loadProfile(session.user.id);
+        } catch (err) {
+          console.error("Erro no onAuthStateChange loadProfile:", err);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     if (window.location.hash) {
@@ -58,6 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return () => {
+      active = false;
       subscription.unsubscribe();
     };
   }, []);

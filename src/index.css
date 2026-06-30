@@ -6,16 +6,16 @@
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #1e293b;
-    --primary: #ec4899;
+    --foreground: #050505;
+    --primary: #ff007f;
     --primary-foreground: #ffffff;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #0f172a;
+      --background: #050505;
       --foreground: #ffffff;
-      --primary: #f472b6;
-      --primary-foreground: #0f172a;
+      --primary: #ff007f;
+      --primary-foreground: #ffffff;
     }
   }
   body {
@@ -54,6 +54,19 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/50;
+    @apply bg-white/70 dark:bg-[#0f0f0f]/80 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 25px -5px var(--primary);
+  }
+
+  .neon-border {
+    border-color: var(--primary);
+    box-shadow: inset 0 0 10px -5px var(--primary), 0 0 15px -5px var(--primary);
+  }
+
+  .neon-text {
+    text-shadow: 0 0 10px var(--primary);
   }
 }
