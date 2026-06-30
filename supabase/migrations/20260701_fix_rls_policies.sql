@@ -26,9 +26,15 @@ CREATE POLICY "Usuários podem atualizar próprio perfil" ON profiles
   USING (auth.uid() = id);
 
 -- ============================================================
--- PAGES
+-- PAGES - Garantir schema completo
 -- ============================================================
 ALTER TABLE pages ENABLE ROW LEVEL SECURITY;
+
+-- Garante que todas as colunas necessárias existem
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
+ALTER TABLE pages ALTER COLUMN created_at SET DEFAULT now();
 
 -- Remove TODAS as políticas existentes que possam causar recursão
 DROP POLICY IF EXISTS "Usuários podem ver próprias páginas" ON pages;
@@ -47,10 +53,8 @@ DROP POLICY IF EXISTS "Permitir insert para usuários autenticados" ON pages;
 DROP POLICY IF EXISTS "Permitir select para próprias páginas" ON pages;
 DROP POLICY IF EXISTS "Permitir update para próprias páginas" ON pages;
 DROP POLICY IF EXISTS "Permitir delete para próprias páginas" ON pages;
-
--- Garante que created_at tem valor padrão
-ALTER TABLE pages 
-  ALTER COLUMN created_at SET DEFAULT now();
+DROP POLICY IF EXISTS "Give authenticated users access to own page" ON pages;
+DROP POLICY IF EXISTS "Enable access for own pages" ON pages;
 
 -- Cria políticas sem recursão (usam auth.uid() diretamente, sem subquery na mesma tabela)
 CREATE POLICY "Usuários podem ver próprias páginas" ON pages
