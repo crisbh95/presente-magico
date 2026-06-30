@@ -21,19 +21,19 @@ export default function AdminIntelligence() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                 <p className="text-xs text-slate-500 font-medium mb-1">Categoria Mais Vendida</p>
-                <p className="font-bold text-lg text-slate-900 dark:text-white">Casamento (34%)</p>
+                <p className="font-bold text-lg text-slate-400 dark:text-slate-500">Aguardando dados</p>
               </div>
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                 <p className="text-xs text-slate-500 font-medium mb-1">Template Mais Usado</p>
-                <p className="font-bold text-lg text-slate-900 dark:text-white">História de Amor v2</p>
+                <p className="font-bold text-lg text-slate-400 dark:text-slate-500">Aguardando dados</p>
               </div>
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                 <p className="text-xs text-slate-500 font-medium mb-1">Origem Principal (Tráfego)</p>
-                <p className="font-bold text-lg text-slate-900 dark:text-white">Instagram Ads (62%)</p>
+                <p className="font-bold text-lg text-slate-400 dark:text-slate-500">Aguardando dados</p>
               </div>
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                 <p className="text-xs text-slate-500 font-medium mb-1">Maior Pico de Faturamento</p>
-                <p className="font-bold text-lg text-slate-900 dark:text-white">Dia dos Namorados</p>
+                <p className="font-bold text-lg text-slate-400 dark:text-slate-500">Aguardando dados</p>
               </div>
             </div>
           </div>
@@ -43,15 +43,15 @@ export default function AdminIntelligence() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
                 <span className="text-sm font-medium">Produtos mais compartilhados</span>
-                <span className="text-sm text-slate-500">História de Amor (450 shares)</span>
+                <span className="text-sm text-slate-400">Nenhum dado (0 shares)</span>
               </div>
               <div className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
                 <span className="text-sm font-medium">Usuários Ativos (Últimos 7 dias)</span>
-                <span className="text-sm font-bold text-emerald-500">2.450 usuários</span>
+                <span className="text-sm font-bold text-slate-400">0 usuários</span>
               </div>
               <div className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
-                <span className="text-sm font-medium text-rose-500">Usuários Inativos (+30 dias)</span>
-                <span className="text-sm text-rose-500 font-bold">124 usuários</span>
+                <span className="text-sm font-medium text-slate-500">Usuários Inativos (+30 dias)</span>
+                <span className="text-sm text-slate-400 font-bold">0 usuários</span>
               </div>
             </div>
           </div>
@@ -62,7 +62,7 @@ export default function AdminIntelligence() {
           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-purple-500/20">
             <h3 className="text-lg font-bold mb-2 flex items-center gap-2"><Target className="w-5 h-5"/> Sugestão da IA</h3>
             <p className="text-sm text-indigo-100 mb-4 leading-relaxed">
-              Notamos que <strong className="text-white">45 usuários</strong> estão próximos de renovar suas assinaturas. Sugerimos enviar um cupom de 10% de desconto para garantir a retenção.
+              Aguardando dados de uso reais para gerar a primeira sugestão preditiva e estratégias de retenção para a plataforma.
             </p>
             <button className="w-full py-2 bg-white text-purple-600 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-colors">
               Criar Campanha Automática

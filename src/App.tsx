@@ -30,7 +30,7 @@ const WhatsAppButton = () => {
 
   return (
     <a
-      href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20a%20minha%20conta%20no%20Presente%20M%C3%A1gico."
+      href="https://wa.me/message/MJ33P725HOFKI1"
       target="_blank"
       rel="noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform duration-300 hover:shadow-xl flex items-center justify-center group"
@@ -92,6 +92,7 @@ function App() {
               <Route path="/profile" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/plans" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/agency" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             </Routes>
           </Suspense>
           <WhatsAppButton />

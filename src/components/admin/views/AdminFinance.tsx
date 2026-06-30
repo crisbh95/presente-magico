@@ -54,12 +54,12 @@ export default function AdminFinance() {
             <div className="p-3 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 rounded-xl">
               <DollarSign className="w-5 h-5" />
             </div>
-            <span className="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-              <ArrowUpRight className="w-3 h-3" /> +12.5%
+            <span className="flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+              <ArrowUpRight className="w-3 h-3" /> 0%
             </span>
           </div>
           <p className="text-sm font-medium text-slate-500 mb-1">Receita Mensal</p>
-          <h3 className="text-2xl font-bold">R$ 14.250,00</h3>
+          <h3 className="text-2xl font-bold">R$ 0,00</h3>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -67,12 +67,12 @@ export default function AdminFinance() {
             <div className="p-3 bg-blue-100 dark:bg-blue-500/20 text-blue-600 rounded-xl">
               <Receipt className="w-5 h-5" />
             </div>
-            <span className="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-              <ArrowUpRight className="w-3 h-3" /> +5.2%
+            <span className="flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+              <ArrowUpRight className="w-3 h-3" /> 0%
             </span>
           </div>
           <p className="text-sm font-medium text-slate-500 mb-1">Via Pix</p>
-          <h3 className="text-2xl font-bold">R$ 9.800,00</h3>
+          <h3 className="text-2xl font-bold">R$ 0,00</h3>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -82,7 +82,7 @@ export default function AdminFinance() {
             </div>
           </div>
           <p className="text-sm font-medium text-slate-500 mb-1">Cartão de Crédito</p>
-          <h3 className="text-2xl font-bold">R$ 4.450,00</h3>
+          <h3 className="text-2xl font-bold">R$ 0,00</h3>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">

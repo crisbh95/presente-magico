@@ -131,7 +131,7 @@ export default function Home() {
             Presente Mágico
           </div>
           <nav className="hidden md:flex gap-6 items-center font-medium text-slate-600 dark:text-slate-300">
-            <a href="#criar" className="hover:text-primary transition">Criar</a>
+            <Link to="/create" className="hover:text-primary transition">Criar</Link>
             <a href="#funcionalidades" className="hover:text-primary transition">Funcionalidades</a>
             <a href="#precos" className="hover:text-primary transition">Planos</a>
             

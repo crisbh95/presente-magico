@@ -2,19 +2,19 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContaine
 import { Users, Gift, TrendingUp, Activity, ArrowUpRight } from 'lucide-react';
 
 const revenueData = [
-  { name: 'Jan', total: 4500 },
-  { name: 'Fev', total: 5200 },
-  { name: 'Mar', total: 4800 },
-  { name: 'Abr', total: 6100 },
-  { name: 'Mai', total: 5900 },
-  { name: 'Jun', total: 8400 },
-  { name: 'Jul', total: 9100 },
+  { name: 'Jan', total: 0 },
+  { name: 'Fev', total: 0 },
+  { name: 'Mar', total: 0 },
+  { name: 'Abr', total: 0 },
+  { name: 'Mai', total: 0 },
+  { name: 'Jun', total: 0 },
+  { name: 'Jul', total: 0 },
 ];
 
 const conversionData = [
-  { name: 'Acessos', value: 12400 },
-  { name: 'Cadastros', value: 3200 },
-  { name: 'Vendas', value: 850 },
+  { name: 'Acessos', value: 0 },
+  { name: 'Cadastros', value: 0 },
+  { name: 'Vendas', value: 0 },
 ];
 
 const COLORS = ['#8b5cf6', '#a78bfa', '#c4b5fd'];
@@ -30,18 +30,18 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI Cards */}
         {[
-          { title: 'Receita Total', value: 'R$ 43.900', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { title: 'Usuários Ativos', value: '12.4K', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-          { title: 'Presentes Criados', value: '3.250', icon: Gift, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-          { title: 'Taxa de Conversão', value: '6.8%', icon: Activity, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+          { title: 'Receita Total', value: 'R$ 0,00', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10', trend: '0%' },
+          { title: 'Usuários Ativos', value: '0', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: '0%' },
+          { title: 'Presentes Criados', value: '0', icon: Gift, color: 'text-purple-500', bg: 'bg-purple-500/10', trend: '0%' },
+          { title: 'Taxa de Conversão', value: '0%', icon: Activity, color: 'text-rose-500', bg: 'bg-rose-500/10', trend: '0%' },
         ].map((kpi, i) => (
           <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
             <div className="flex justify-between items-start mb-4">
               <div className={`p-3 ${kpi.bg} ${kpi.color} rounded-xl`}>
                 <kpi.icon className="w-5 h-5" />
               </div>
-              <span className="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">
-                <ArrowUpRight className="w-3 h-3" /> 12%
+              <span className="flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+                <ArrowUpRight className="w-3 h-3" /> {kpi.trend}
               </span>
             </div>
             <p className="text-sm font-medium text-slate-500 mb-1 relative z-10">{kpi.title}</p>

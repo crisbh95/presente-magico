@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Edit3, Share2, BarChart2, LogOut, Loader2, Trash2, CreditCard, User as UserIcon, LayoutDashboard, ShieldAlert, CheckCircle2, Gift, ExternalLink, Building, Image as ImageIcon, Save } from 'lucide-react';
+import { Plus, Edit3, Share2, BarChart2, LogOut, Loader2, Trash2, CreditCard, User as UserIcon, LayoutDashboard, ShieldAlert, CheckCircle2, Gift, ExternalLink, Building, Image as ImageIcon, Save, HelpCircle, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserPages, deletePage, getTotalPagesCount, getPremiumCount, updateAgencyProfile, uploadPhoto } from '../services/db';
 import { supabase } from '../supabase/config';
@@ -74,7 +74,7 @@ export default function Dashboard() {
       case 'plans':
         return <PlansTab profile={profile} />;
       case 'agency':
-        return (profile?.plan_type === 'agency' || isAdmin) ? <AgencyTab user={user} profile={profile} /> : <DashboardHome pages={pages} profile={profile} onDelete={handleDelete} />;
+        return <AgencyTab user={user} profile={profile} />;
       case 'admin':
         return isAdmin ? <div className="p-8">Conteúdo Admin em breve</div> : null;
       default:
@@ -108,9 +108,7 @@ export default function Dashboard() {
           <nav className="space-y-2">
             <SidebarLink to="/dashboard" icon={<LayoutDashboard />} label="Meus Presentes" active={currentTab === 'dashboard'} />
             <SidebarLink to="/plans" icon={<CreditCard />} label="Planos" active={currentTab === 'plans'} />
-            {(profile?.plan_type === 'agency' || isAdmin) && (
-              <SidebarLink to="/agency" icon={<Building />} label="Minha Marca" active={currentTab === 'agency'} />
-            )}
+            <SidebarLink to="/agency" icon={<Building />} label="Minha Marca" active={currentTab === 'agency'} />
             <SidebarLink to="/profile" icon={<UserIcon />} label="Perfil" active={currentTab === 'profile' || currentTab === 'settings'} />
             {isAdmin && (
               <SidebarLink to="/admin" icon={<ShieldAlert />} label="Admin" active={currentTab === 'admin'} />
@@ -118,6 +116,11 @@ export default function Dashboard() {
           </nav>
         </div>
         
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+          <Link to="/ajuda" className="text-sm font-medium text-slate-500 hover:text-primary flex items-center gap-2 transition-colors"><HelpCircle className="w-4 h-4"/> Central de Ajuda</Link>
+          <Link to="/contato" className="text-sm font-medium text-slate-500 hover:text-primary flex items-center gap-2 transition-colors"><Mail className="w-4 h-4"/> Fale Conosco</Link>
+        </div>
+
         <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-800">
           <button 
             onClick={handleLogout}
@@ -149,9 +152,7 @@ export default function Dashboard() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-start p-2 pt-2 z-50" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <MobileLink to="/dashboard" icon={<LayoutDashboard />} label="Painel" active={currentTab === 'dashboard'} />
         {!isAdmin && <MobileLink to="/create" icon={<Plus />} label="Criar" active={false} highlight />}
-        {(profile?.plan_type === 'agency' || isAdmin) && (
-          <MobileLink to="/agency" icon={<Building />} label="Marca" active={currentTab === 'agency'} />
-        )}
+        <MobileLink to="/agency" icon={<Building />} label="Marca" active={currentTab === 'agency'} />
         <MobileLink to="/plans" icon={<CreditCard />} label="Planos" active={currentTab === 'plans'} />
         {isAdmin && <MobileLink to="/admin" icon={<ShieldAlert />} label="Admin" active={currentTab === 'admin'} />}
         <MobileLink to="/profile" icon={<UserIcon />} label="Perfil" active={currentTab === 'profile' || currentTab === 'settings'} />
@@ -558,12 +559,47 @@ function ProfileTab({ user, profile }: { user: any, profile: UserProfile | null 
             <p className="font-bold">{new Date().toLocaleDateString('pt-BR')}</p>
           </div>
         </div>
+
+        <div className="w-full mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2 md:hidden">
+          <Link to="/ajuda" className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition">
+            <div className="flex items-center gap-3"><HelpCircle className="w-5 h-5 text-slate-400" /> <span className="font-medium">Central de Ajuda</span></div>
+            <ExternalLink className="w-4 h-4 text-slate-300" />
+          </Link>
+          <Link to="/contato" className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition">
+            <div className="flex items-center gap-3"><Mail className="w-5 h-5 text-slate-400" /> <span className="font-medium">Fale Conosco</span></div>
+            <ExternalLink className="w-4 h-4 text-slate-300" />
+          </Link>
+          <div className="flex justify-center gap-4 mt-6 pb-2">
+            <Link to="/termos" className="text-xs text-slate-400 hover:text-slate-600">Termos de Uso</Link>
+            <Link to="/privacidade" className="text-xs text-slate-400 hover:text-slate-600">Privacidade</Link>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 function AgencyTab({ user, profile }: { user: any, profile: UserProfile | null }) {
+  const isAdmin = profile?.role === 'admin' || user?.email === 'crisbh95@gmail.com' || user?.email === 'contato@presentemagico.com.br';
+  
+  if (profile?.plan_type !== 'agency' && !isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-16 animate-in fade-in duration-500">
+        <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-rose-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Building className="w-10 h-10 text-primary" />
+        </div>
+        <h3 className="text-3xl font-bold mb-4">Módulo Exclusivo para Agências</h3>
+        <p className="text-slate-500 text-lg mb-8 max-w-lg mx-auto">
+          O plano Agência permite que você remova a nossa marca d'água e utilize a sua própria logomarca em todos os presentes criados, além de oferecer suporte VIP via WhatsApp.
+        </p>
+        <Link to="/plans" className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:scale-105 transition-all">
+          <CreditCard className="w-5 h-5" />
+          Conhecer o Plano Agência
+        </Link>
+      </div>
+    );
+  }
+
   const [agencyName, setAgencyName] = useState(profile?.agency_name || '');
   const [agencyWhatsapp, setAgencyWhatsapp] = useState(profile?.agency_whatsapp || '');
   const [agencyLogoUrl, setAgencyLogoUrl] = useState(profile?.agency_logo_url || '');

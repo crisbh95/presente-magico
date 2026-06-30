@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Edit2, Ban, Crown, ExternalLink } from 'lucide-react';
+import { Search, Filter, Edit2, Ban, Crown, ExternalLink, X } from 'lucide-react';
 
 const MOCK_USERS = [
   { id: '1', name: 'Maria Silva', email: 'maria@example.com', plan: 'premium', lastAccess: 'Hoje, 14:30', gifts: 12, status: 'active' },
@@ -11,6 +11,23 @@ const MOCK_USERS = [
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [users, setUsers] = useState(MOCK_USERS);
+
+  const handleDelete = (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este usuário? (Esta é uma simulação)')) {
+      setUsers(users.filter(user => user.id !== id));
+    }
+  };
+
+  const handleBlock = (id: string) => {
+    if (confirm('Deseja bloquear o acesso deste usuário?')) {
+      setUsers(users.map(user => user.id === id ? { ...user, status: 'blocked' } : user));
+    }
+  };
+
+  const handleAlert = (msg: string) => {
+    alert(`Módulo em Desenvolvimento: ${msg}`);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -51,7 +68,7 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {MOCK_USERS.map((user) => (
+              {users.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -96,14 +113,33 @@ export default function AdminUsers() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 text-slate-400 hover:text-primary transition-colors" title="Visualizar Perfil">
+                      <button 
+                        className="p-1.5 text-slate-400 hover:text-primary transition-colors" 
+                        title="Visualizar Perfil"
+                        onClick={() => handleAlert('Visualização de perfil completo')}
+                      >
                         <ExternalLink className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors" title="Editar Usuário">
+                      <button 
+                        className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors" 
+                        title="Editar Usuário"
+                        onClick={() => handleAlert('Edição de dados cadastrais')}
+                      >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors" title="Bloquear Usuário">
+                      <button 
+                        className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors" 
+                        title="Bloquear Usuário"
+                        onClick={() => handleBlock(user.id)}
+                      >
                         <Ban className="w-4 h-4" />
+                      </button>
+                      <button 
+                        className="p-1.5 text-slate-400 hover:text-red-500 transition-colors ml-1" 
+                        title="Excluir Usuário"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
                   </td>
