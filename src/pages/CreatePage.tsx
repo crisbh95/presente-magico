@@ -10,6 +10,7 @@ import WeddingWizard from '../components/forms/WeddingWizard';
 import KidsWizard from '../components/forms/KidsWizard';
 import PetWizard from '../components/forms/PetWizard';
 import GraduationWizard from '../components/forms/GraduationWizard';
+import GenericWizard from '../components/forms/GenericWizard';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserPages } from '../services/db';
 import { trackEvent } from '../services/analytics';
@@ -152,8 +153,8 @@ export default function CreatePage() {
       else if (occasion === 'casamento') {
         w = 'casamento';
       }
-      // Aniversário / Comemoração / Aposentadoria
-      else if (occasion === 'aniversario' || occasion === 'comemoracao' || occasion === 'aposentadoria') {
+      // Aniversário
+      else if (occasion === 'aniversario') {
         w = 'aniversario';
       }
       // Dia das Mães / Homenagem Avó
@@ -180,9 +181,9 @@ export default function CreatePage() {
       else if (occasion === 'nascimento' || occasion === 'cha-bebe') {
         w = 'infantil';
       }
-      // Agradecimento / Desculpas / Personalizado → LoveWizard (adapta pelo recipient)
-      else if (occasion === 'agradecimento' || occasion === 'desculpas' || occasion === 'personalizado') {
-        w = 'amor';
+      // Agradecimento / Desculpas / Personalizado / Comemoração / Aposentadoria → GenericWizard
+      else if (occasion === 'agradecimento' || occasion === 'desculpas' || occasion === 'personalizado' || occasion === 'comemoracao' || occasion === 'aposentadoria') {
+        w = 'generico';
       }
       // === FALLBACK PELO DESTINATÁRIO (só se a ocasião não decidiu) ===
       else if (recipient === 'mae' || recipient === 'avo-f') {
@@ -226,6 +227,7 @@ export default function CreatePage() {
     if (mappedWizard === 'infantil') return <KidsWizard onBack={handleBack} />;
     if (mappedWizard === 'pets') return <PetWizard onBack={handleBack} />;
     if (mappedWizard === 'formatura') return <GraduationWizard onBack={handleBack} />;
+    if (mappedWizard === 'generico') return <GenericWizard onBack={handleBack} occasion={occasion} recipient={recipient} />;
   }
 
   return (
