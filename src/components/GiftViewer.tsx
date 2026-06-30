@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Music, Loader2, Gift, Calendar, MapPin, MessageCircle, Heart, Flag, GraduationCap, Flower2, Shield, Baby, Gem, HeartHandshake, Users } from 'lucide-react';
+import { Play, Music, Loader2, Gift, Calendar, MapPin, MessageCircle, Heart, Flag, GraduationCap, Flower2, Shield, Baby, Gem, HeartHandshake, Users, Star, Feather, PawPrint } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 // Contador Dinâmico Exato (Estilo Glassmorphism Escuro)
@@ -291,6 +291,7 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
         };
       case 'filho':
       case 'filha':
+      case 'infantil':
       case 'nascimento':
       case 'cha-bebe':
         return {
@@ -328,6 +329,70 @@ export default function GiftViewer({ pageData, isPreviewMode = false }: GiftView
           closedTitle: 'Um presente para você',
           Icon: Users,
           particlesColor: 'bg-cyan-200/60'
+        };
+      case 'infantil':
+        return {
+          primaryColorClass: 'text-emerald-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]',
+          closedTitle: 'Um presente especial',
+          Icon: Baby,
+          particlesColor: 'bg-emerald-200/60'
+        };
+      case 'memorial':
+        return {
+          primaryColorClass: 'text-indigo-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(129,140,248,0.5)]',
+          closedTitle: 'Em memória especial',
+          Icon: Feather,
+          particlesColor: 'bg-indigo-200/60'
+        };
+      case 'pets':
+        return {
+          primaryColorClass: 'text-teal-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]',
+          closedTitle: 'Um presente especial do seu pet',
+          Icon: PawPrint,
+          particlesColor: 'bg-teal-200/60'
+        };
+      case 'agradecimento':
+        return {
+          primaryColorClass: 'text-amber-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]',
+          closedTitle: 'Um agradecimento especial',
+          Icon: HeartHandshake,
+          particlesColor: 'bg-amber-200/60'
+        };
+      case 'desculpas':
+        return {
+          primaryColorClass: 'text-rose-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]',
+          closedTitle: 'Um pedido sincero',
+          Icon: Heart,
+          particlesColor: 'bg-rose-200/60'
+        };
+      case 'comemoracao':
+        return {
+          primaryColorClass: 'text-violet-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(167,139,250,0.5)]',
+          closedTitle: 'Uma comemoração especial',
+          Icon: Star,
+          particlesColor: 'bg-violet-200/60'
+        };
+      case 'aposentadoria':
+        return {
+          primaryColorClass: 'text-emerald-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]',
+          closedTitle: 'Uma nova jornada começa',
+          Icon: Gift,
+          particlesColor: 'bg-emerald-200/60'
+        };
+      case 'personalizado':
+        return {
+          primaryColorClass: 'text-purple-400',
+          shadowClass: 'drop-shadow-[0_0_15px_rgba(192,132,252,0.5)]',
+          closedTitle: 'Um presente para você',
+          Icon: Star,
+          particlesColor: 'bg-purple-200/60'
         };
       default:
         return {

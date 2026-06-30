@@ -110,8 +110,18 @@ export default function CreatePage() {
             'draft_infantil': 'nascimento',
             'draft_pet': 'pet',
             'draft_formatura': 'formatura',
+            'draft_generic_agradecimento': 'agradecimento',
+            'draft_generic_desculpas': 'desculpas',
+            'draft_generic_comemoracao': 'comemoracao',
+            'draft_generic_aposentadoria': 'aposentadoria',
+            'draft_generic_personalizado': 'personalizado',
           };
-          const o = occasionMap[draftKey];
+          
+          // Fallback: extrair ocasião do draftKey para drafts genéricos não listados
+          let o = occasionMap[draftKey];
+          if (!o && draftKey.startsWith('draft_generic_')) {
+            o = draftKey.replace('draft_generic_', '');
+          }
           if (o) setOccasion(o);
         }
         setStep(3);
@@ -218,7 +228,7 @@ export default function CreatePage() {
   };
   
   if (step === 3 && mappedWizard) {
-    if (mappedWizard === 'amor') return <LoveWizard onBack={handleBack} recipient={recipient} />;
+    if (mappedWizard === 'amor') return <LoveWizard onBack={handleBack} recipient={recipient} occasion={occasion} />;
     if (mappedWizard === 'aniversario') return <BirthdayWizard onBack={handleBack} />;
     if (mappedWizard === 'mae') return <MotherWizard onBack={handleBack} recipient={recipient} />;
     if (mappedWizard === 'pai') return <FatherWizard onBack={handleBack} recipient={recipient} />;

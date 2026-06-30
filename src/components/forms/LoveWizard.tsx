@@ -11,7 +11,7 @@ import { useWizardStep } from '../../services/wizardState';
 import PreviewModal from '../PreviewModal';
 import toast from 'react-hot-toast';
 
-export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () => void, recipient?: string }) {
+export default function LoveWizard({ onBack, recipient = 'amor', occasion }: { onBack: () => void, recipient?: string, occasion?: string }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [step, setStep] = useWizardStep(`draft_${recipient}`);
@@ -30,6 +30,10 @@ export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () 
 
   const isFriend = recipient.includes('amig') || recipient.includes('outro') || recipient === 'familia';
   const title1 = isFriend ? "O seu nome" : "Qual o seu nome?";
+  const isProposal = occasion === 'pedido-namoro';
+  const step2Title = isProposal ? 'Desde quando se conhecem?' : 'Quando tudo começou?';
+  const step2Desc = isProposal ? 'Quando vocês se conheceram?' : 'Escolha a data do início do namoro';
+
 
 
   const nextStep = () => setStep(s => s + 1);
@@ -163,8 +167,8 @@ export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () 
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold">Quando tudo começou?</h2>
-                <p className="text-slate-500 mt-2">Escolha a data do início do namoro</p>
+                <h2 className="text-2xl font-bold">{step2Title}</h2>
+                <p className="text-slate-500 mt-2">{step2Desc}</p>
               </div>
               <div>
                 <input 
@@ -176,7 +180,9 @@ export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () 
               </div>
               {formData.startDate && (
                 <div className="p-4 bg-rose-50 text-rose-600 rounded-2xl text-center font-medium animate-pulse">
-                  Vocês estão juntos desde {new Date(formData.startDate).toLocaleDateString()} ❤️
+                  {isProposal
+                    ? `Vocês se conhecem desde ${new Date(formData.startDate).toLocaleDateString()} ❤️`
+                    : `Vocês estão juntos desde ${new Date(formData.startDate).toLocaleDateString()} ❤️`}
                 </div>
               )}
             </motion.div>

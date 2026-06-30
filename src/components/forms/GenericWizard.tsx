@@ -69,6 +69,104 @@ const OCCASION_CONFIG: Record<string, {
 
 const DEFAULT_CONFIG = OCCASION_CONFIG['personalizado'];
 
+const COLOR_CLASSES: Record<string, {
+  pageBg: string;
+  text: string;
+  bg: string;
+  iconBg: string;
+  border: string;
+  focusInput: string;
+  aiBtn: string;
+  aiBtnHover: string;
+  prevBtn: string;
+  primaryBtn: string;
+  primaryBtnText: string;
+  primaryBtnHover: string;
+  shadow: string;
+  step: string;
+}> = {
+  amber: {
+    pageBg: 'bg-amber-50/30 dark:bg-slate-950',
+    text: 'text-amber-500',
+    bg: 'bg-amber-500',
+    iconBg: 'bg-amber-100 dark:bg-amber-900/30',
+    border: 'border-amber-100 dark:border-slate-800',
+    focusInput: 'focus:border-amber-400 focus:ring-4 ring-amber-100',
+    aiBtn: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    aiBtnHover: 'hover:bg-amber-100',
+    prevBtn: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300',
+    primaryBtn: 'bg-amber-500',
+    primaryBtnText: 'text-white',
+    primaryBtnHover: 'hover:bg-amber-600',
+    shadow: 'shadow-xl shadow-amber-200 dark:shadow-none',
+    step: 'bg-amber-500',
+  },
+  rose: {
+    pageBg: 'bg-rose-50/30 dark:bg-slate-950',
+    text: 'text-rose-500',
+    bg: 'bg-rose-500',
+    iconBg: 'bg-rose-100 dark:bg-rose-900/30',
+    border: 'border-rose-100 dark:border-slate-800',
+    focusInput: 'focus:border-rose-400 focus:ring-4 ring-rose-100',
+    aiBtn: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+    aiBtnHover: 'hover:bg-rose-100',
+    prevBtn: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300',
+    primaryBtn: 'bg-rose-500',
+    primaryBtnText: 'text-white',
+    primaryBtnHover: 'hover:bg-rose-600',
+    shadow: 'shadow-xl shadow-rose-200 dark:shadow-none',
+    step: 'bg-rose-500',
+  },
+  violet: {
+    pageBg: 'bg-violet-50/30 dark:bg-slate-950',
+    text: 'text-violet-500',
+    bg: 'bg-violet-500',
+    iconBg: 'bg-violet-100 dark:bg-violet-900/30',
+    border: 'border-violet-100 dark:border-slate-800',
+    focusInput: 'focus:border-violet-400 focus:ring-4 ring-violet-100',
+    aiBtn: 'bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 border-violet-200 dark:border-violet-800',
+    aiBtnHover: 'hover:bg-violet-100',
+    prevBtn: 'bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300',
+    primaryBtn: 'bg-violet-500',
+    primaryBtnText: 'text-white',
+    primaryBtnHover: 'hover:bg-violet-600',
+    shadow: 'shadow-xl shadow-violet-200 dark:shadow-none',
+    step: 'bg-violet-500',
+  },
+  emerald: {
+    pageBg: 'bg-emerald-50/30 dark:bg-slate-950',
+    text: 'text-emerald-500',
+    bg: 'bg-emerald-500',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+    border: 'border-emerald-100 dark:border-slate-800',
+    focusInput: 'focus:border-emerald-400 focus:ring-4 ring-emerald-100',
+    aiBtn: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    aiBtnHover: 'hover:bg-emerald-100',
+    prevBtn: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300',
+    primaryBtn: 'bg-emerald-500',
+    primaryBtnText: 'text-white',
+    primaryBtnHover: 'hover:bg-emerald-600',
+    shadow: 'shadow-xl shadow-emerald-200 dark:shadow-none',
+    step: 'bg-emerald-500',
+  },
+  purple: {
+    pageBg: 'bg-purple-50/30 dark:bg-slate-950',
+    text: 'text-purple-500',
+    bg: 'bg-purple-500',
+    iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+    border: 'border-purple-100 dark:border-slate-800',
+    focusInput: 'focus:border-purple-400 focus:ring-4 ring-purple-100',
+    aiBtn: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+    aiBtnHover: 'hover:bg-purple-100',
+    prevBtn: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300',
+    primaryBtn: 'bg-purple-500',
+    primaryBtnText: 'text-white',
+    primaryBtnHover: 'hover:bg-purple-600',
+    shadow: 'shadow-xl shadow-purple-200 dark:shadow-none',
+    step: 'bg-purple-500',
+  },
+};
+
 export default function GenericWizard({ onBack, occasion = 'personalizado', recipient = 'outro' }: { onBack: () => void, occasion?: string, recipient?: string }) {
   const navigate = useNavigate();
   const draftKey = `draft_generic_${occasion}`;
@@ -85,14 +183,8 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
   const [isSaving, setIsSaving] = useState(false);
 
   const config = OCCASION_CONFIG[occasion] || DEFAULT_CONFIG;
-  const colorMap: Record<string, string> = {
-    amber: 'amber',
-    rose: 'rose',
-    violet: 'violet',
-    emerald: 'emerald',
-    purple: 'purple',
-  };
-  const c = colorMap[config.color] || 'purple';
+  const c = config.color === 'amber' || config.color === 'rose' || config.color === 'violet' || config.color === 'emerald' ? config.color : 'purple';
+  const cls = COLOR_CLASSES[c];
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => {
@@ -149,17 +241,17 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
   const IconComponent = config.icon === 'heart' ? Heart : config.icon === 'gift' ? Gift : config.icon === 'handHeart' ? HandHeart : Star;
 
   return (
-    <div className={`min-h-screen bg-${c}-50/30 dark:bg-slate-950 flex flex-col items-center pt-12 px-4 pb-20`}>
+    <div className={`min-h-screen ${cls.pageBg} flex flex-col items-center pt-12 px-4 pb-20`}>
       
       {/* Step Indicator */}
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between items-center px-2">
-          <div className={`text-sm font-semibold text-${c}-500`}>Passo {step} de 3</div>
+          <div className={`text-sm font-semibold ${cls.text}`}>Passo {step} de 3</div>
           <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-800">Cancelar</button>
         </div>
         <div className="flex gap-2 mt-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? `bg-${c}-500` : 'bg-slate-200 dark:bg-slate-800'}`} />
+            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? cls.step : 'bg-slate-200 dark:bg-slate-800'}`} />
           ))}
         </div>
       </div>
@@ -171,14 +263,14 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
         </div>
       )}
 
-      <div className={`w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 shadow-2xl border border-${c}-100 dark:border-slate-800 relative overflow-hidden`}>
+      <div className={`w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 shadow-2xl ${cls.border} relative overflow-hidden`}>
         
         <AnimatePresence mode="wait">
           
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               <div className="text-center mb-8">
-                <div className={`w-16 h-16 bg-${c}-100 dark:bg-${c}-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-${c}-500`}>
+                <div className={`w-16 h-16 ${cls.iconBg} rounded-full flex items-center justify-center mx-auto mb-4 ${cls.text}`}>
                   <IconComponent size={32} />
                 </div>
                 <h2 className="text-2xl font-bold">{config.title}</h2>
@@ -188,7 +280,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                   type="text" 
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-${c}-400 focus:ring-4 ring-${c}-100 transition-all text-center font-medium`} 
+                  className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none ${cls.focusInput} transition-all text-center font-medium`} 
                   placeholder={config.placeholder} 
                 />
               </div>
@@ -220,7 +312,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                       setFormData({...formData, audio: e.target.files[0]});
                     }
                   }} />
-                  <div className={`w-12 h-12 bg-${c}-100 dark:bg-${c}-900/30 rounded-full flex items-center justify-center text-${c}-500 flex-shrink-0`}>
+                  <div className={`w-12 h-12 ${cls.iconBg} rounded-full flex items-center justify-center ${cls.text} flex-shrink-0`}>
                     <Mic size={20} />
                   </div>
                   <div>
@@ -238,7 +330,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                 <h2 className="text-2xl font-bold">{config.messageTitle}</h2>
               </div>
               <div className="flex justify-center mb-4">
-                <button onClick={generateAI} className={`bg-${c}-50 dark:bg-${c}-900/30 text-${c}-600 dark:text-${c}-300 border border-${c}-200 dark:border-${c}-800 rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-${c}-100 transition`}>
+                <button onClick={generateAI} className={`${cls.aiBtn} rounded-full px-4 py-2 text-sm font-semibold flex items-center gap-2 ${cls.aiBtnHover} transition`}>
                   <Sparkles size={16} /> Me ajude a escrever
                 </button>
               </div>
@@ -246,7 +338,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                 rows={6}
                 value={formData.message}
                 onChange={e => setFormData({...formData, message: e.target.value})}
-                className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-lg outline-none focus:border-${c}-400 focus:ring-4 ring-${c}-100 transition-all resize-none`} 
+                className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-lg outline-none ${cls.focusInput} transition-all resize-none`} 
                 placeholder={config.messagePlaceholder} 
               />
             </motion.div>
@@ -259,11 +351,11 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
             <ChevronLeft size={24} />
           </button>
           
-          <button onClick={() => setShowPreview(true)} title="Ver Prévia" className={`p-4 rounded-2xl bg-${c}-50 dark:bg-${c}-900/30 text-${c}-600 dark:text-${c}-300 hover:bg-${c}-100 transition-colors`}>
+          <button onClick={() => setShowPreview(true)} title="Ver Prévia" className={`p-4 rounded-2xl ${cls.prevBtn} ${cls.aiBtnHover} transition-colors`}>
             <Eye size={24} />
           </button>
 
-          <button onClick={step === 3 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && !formData.name)} className={`flex-1 bg-${c}-500 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-${c}-200 dark:shadow-none hover:bg-${c}-600 transition-colors disabled:opacity-50`}>
+          <button onClick={step === 3 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && !formData.name)} className={`flex-1 ${cls.primaryBtn} ${cls.primaryBtnText} rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 ${cls.shadow} ${cls.primaryBtnHover} transition-colors disabled:opacity-50`}>
             {isSaving ? <Loader2 className="animate-spin" size={24} /> : step === 3 ? 'Gerar Presente' : 'Continuar'} 
             {!isSaving && step < 3 && <ChevronRight size={24} />}
           </button>
