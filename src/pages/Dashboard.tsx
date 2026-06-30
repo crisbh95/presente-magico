@@ -373,7 +373,17 @@ function PlansTab({ profile }: { profile: UserProfile | null }) {
         body: { plan_type: planType || 'lifetime' },
       });
 
-      if (error) throw new Error(error.message || 'Erro ao criar pagamento');
+      if (error) {
+        let errorMsg = error.message || 'Erro ao criar pagamento';
+        if (error.context && typeof error.context.text === 'function') {
+          const text = await error.context.text();
+          console.error('Detalhes do erro create-pix:', text);
+          errorMsg = text || errorMsg;
+        } else {
+          console.error('Detalhes do erro create-pix:', error.context || error.message);
+        }
+        throw new Error(errorMsg);
+      }
       if (data?.error) throw new Error(data.error);
 
       window.location.href = data.init_point;

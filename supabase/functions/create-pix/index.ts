@@ -44,39 +44,43 @@ Deno.serve(async (req) => {
 
     const siteUrl = Deno.env.get("SITE_URL") || "https://presentemagic.com.br"
 
+    const mpPayload = {
+      items: [
+        {
+          id: planType,
+          title: plan.title,
+          description: plan.description,
+          quantity: 1,
+          currency_id: "BRL",
+          unit_price: plan.amount,
+        },
+      ],
+      payer: { email: user.email },
+      back_urls: {
+        success: `${siteUrl}/plans?status=success`,
+        failure: `${siteUrl}/plans?status=failure`,
+        pending: `${siteUrl}/plans?status=pending`,
+      },
+      auto_return: "approved",
+      notification_url: `https://qpmpsozarwkbwkyhbhow.supabase.co/functions/v1/mercadopago-webhook`,
+      external_reference: JSON.stringify({ user_id: user.id, plan_type: planType }),
+    }
+
+    console.log("Enviando para Mercado Pago:", JSON.stringify(mpPayload, null, 2))
+
     const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        items: [
-          {
-            id: planType,
-            title: plan.title,
-            description: plan.description,
-            quantity: 1,
-            currency_id: "BRL",
-            unit_price: plan.amount,
-          },
-        ],
-        payer: { email: user.email },
-        back_urls: {
-          success: `${siteUrl}/plans?status=success`,
-          failure: `${siteUrl}/plans?status=failure`,
-          pending: `${siteUrl}/plans?status=pending`,
-        },
-        auto_return: "approved",
-        notification_url: `https://qpmpsozarwkbwkyhbhow.supabase.co/functions/v1/mercadopago-webhook`,
-        external_reference: JSON.stringify({ user_id: user.id, plan_type: planType }),
-      }),
+      body: JSON.stringify(mpPayload),
     })
 
     if (!mpResponse.ok) {
       const err = await mpResponse.text()
-      console.error("Erro Mercado Pago:", err)
-      throw new Error("Falha ao criar preferência de pagamento")
+      console.error("Erro Mercado Pago:", mpResponse.status, err)
+      throw new Error(`Mercado Pago (${mpResponse.status}): ${err}`)
     }
 
     const preference = await mpResponse.json()
