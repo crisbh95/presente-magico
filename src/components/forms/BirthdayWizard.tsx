@@ -4,14 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Gift, Sparkles, Search, Cake, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { useDraft } from '../../hooks/useDraft';
+import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import PreviewModal from '../PreviewModal';
-import { useDraft } from '../../hooks/useDraft';
 import toast from 'react-hot-toast';
 
 export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useWizardStep('draft_aniversario');
   const [showPreview, setShowPreview] = useState(false);
   const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft('draft_aniversario', {
     name: '',

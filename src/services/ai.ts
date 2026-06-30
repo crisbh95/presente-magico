@@ -3,12 +3,12 @@ import { getProfile } from './db';
 import toast from 'react-hot-toast';
 
 const FALLBACK_PHRASES = [
-  "O amor verdadeiro transcende o tempo. Cada momento ao seu lado é um presente que guardarei para sempre no coração.",
-  "Estar com você transforma qualquer lugar no melhor lugar do mundo. Te amo infinito!",
+  "As palavras não alcançam o tamanho do sentimento que tenho por você. Nossa conexão é muito especial.",
+  "Cada momento ao seu lado é um presente que guardarei para sempre no coração.",
   "A vida é muito melhor dividida com você. Nossas memórias são meu maior tesouro.",
-  "Sabe aquela sensação de lar? É assim que me sinto quando estou com você.",
-  "Você é a minha melhor decisão, minha maior sorte e meu amor mais bonito.",
-  "As palavras não alcançam o tamanho do sentimento que tenho por você. É de alma."
+  "Sabe aquela sensação de paz? É assim que me sinto quando lembro de você.",
+  "Você é uma das pessoas mais incríveis que já conheci, minha maior sorte.",
+  "Obrigado por ser exatamente quem você é. Sou muito feliz por ter você na minha vida!"
 ];
 
 const PHOTO_FALLBACKS = [

@@ -4,15 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Shield, Sparkles, Loader2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
+import { useDraft } from '../../hooks/useDraft';
+import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import PreviewModal from '../PreviewModal';
 
-import { useDraft } from '../../hooks/useDraft';
 import toast from 'react-hot-toast';
 
 export default function FatherWizard({ onBack, recipient = 'pai' }: { onBack: () => void, recipient?: string }) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useWizardStep(`draft_${recipient}`);
   const [showPreview, setShowPreview] = useState(false);
   const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft(`draft_${recipient}`, {
     name: '',

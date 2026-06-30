@@ -5,13 +5,14 @@ import { ChevronRight, ChevronLeft, Heart, Sparkles, Mic, Loader2, Eye } from 'l
 import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
 import { useDraft } from '../../hooks/useDraft';
+import { useWizardStep } from '../../services/wizardState';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import PreviewModal from '../PreviewModal';
 import toast from 'react-hot-toast';
 
 export default function MotherWizard({ onBack, recipient = 'mae' }: { onBack: () => void, recipient?: string }) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useWizardStep(`draft_${recipient}`);
   const [showPreview, setShowPreview] = useState(false);
   const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft(`draft_${recipient}`, {
     name: '',

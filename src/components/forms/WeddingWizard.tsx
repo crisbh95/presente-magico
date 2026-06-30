@@ -8,11 +8,12 @@ import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWith
 import PreviewModal from '../PreviewModal';
 
 import { useDraft } from '../../hooks/useDraft';
+import { useWizardStep } from '../../services/wizardState';
 import toast from 'react-hot-toast';
 
 export default function WeddingWizard({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useWizardStep('draft_casamento');
   const [showPreview, setShowPreview] = useState(false);
   const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft('draft_casamento', {
     name1: '',

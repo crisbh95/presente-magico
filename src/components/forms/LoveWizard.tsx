@@ -7,13 +7,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createPage, uploadPhoto, type PhotoData } from '../../services/db';
 import PhotoUploadWithCaption, { type PhotoWithCaption } from './PhotoUploadWithCaption';
 import { useDraft } from '../../hooks/useDraft';
+import { useWizardStep } from '../../services/wizardState';
 import PreviewModal from '../PreviewModal';
 import toast from 'react-hot-toast';
 
 export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () => void, recipient?: string }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useWizardStep(`draft_${recipient}`);
   const [showPreview, setShowPreview] = useState(false);
   const { data: formData, setData: setFormData, hasRestored, clearDraft } = useDraft(`draft_${recipient}`, {
     myName: '',
@@ -81,9 +82,21 @@ export default function LoveWizard({ onBack, recipient = 'amor' }: { onBack: () 
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const prompt = isFriend 
-        ? `Escreva uma mensagem de carinho e amizade curta e muito emocionante de ${formData.myName || 'mim'} para ${formData.loveName || 'meu amigo'}. Destaque que estão juntos desde ${formData.startDate || 'sempre'}.`
-        : `Escreva uma carta de amor curta e muito emocionante para o casal ${formData.myName || 'meu amor'} e ${formData.loveName || 'amor'}. Destaque que estão juntos desde ${formData.startDate || 'sempre'}.`;
+      let requestType = 'uma carta de amor';
+      let targetName = formData.loveName || 'meu amor';
+      
+      if (recipient.includes('mae') || recipient === 'mae') {
+        requestType = 'uma mensagem de muito amor e gratidão de filho(a) para mãe';
+        targetName = formData.loveName || 'mãe';
+      } else if (recipient.includes('pai')) {
+        requestType = 'uma mensagem de muito amor e gratidão de filho(a) para pai';
+        targetName = formData.loveName || 'pai';
+      } else if (isFriend) {
+        requestType = 'uma mensagem linda de carinho e grande amizade';
+        targetName = formData.loveName || 'amigo(a)';
+      }
+      
+      const prompt = `Escreva ${requestType} curta e muito emocionante de ${formData.myName || 'mim'} para ${targetName}. Destaque que estamos juntos e construindo memórias incríveis desde ${formData.startDate || 'sempre'}.`;
       
       const generatedText = await generateMessage(prompt);
       setFormData(prev => ({ ...prev, message: generatedText }));

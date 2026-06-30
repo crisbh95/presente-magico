@@ -14,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getUserPages } from '../services/db';
 import { trackEvent } from '../services/analytics';
 import { Crown, Lock } from 'lucide-react';
+import { wizardState } from '../services/wizardState';
 
 const RECIPIENTS = [
   { id: 'amor', name: 'Meu Amor', icon: '❤️' },
@@ -57,10 +58,14 @@ export default function CreatePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isPremium } = useAuth();
-  const [step, setStep] = useState(1);
-  const [recipient, setRecipient] = useState('');
-  const [occasion, setOccasion] = useState('');
-  const [mappedWizard, setMappedWizard] = useState('');
+  const [step, setStep] = useState(wizardState.createPage.step);
+  const [recipient, setRecipient] = useState(wizardState.createPage.recipient);
+  const [occasion, setOccasion] = useState(wizardState.createPage.occasion);
+  const [mappedWizard, setMappedWizard] = useState(wizardState.createPage.mappedWizard);
+
+  useEffect(() => {
+    wizardState.createPage = { step, recipient, occasion, mappedWizard };
+  }, [step, recipient, occasion, mappedWizard]);
 
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
 
