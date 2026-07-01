@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const PLANS = {
   lifetime: { amount: 99.90, title: "Premium Vitalício", description: "Presente Mágico - Acesso Vitalício" },
-  monthly: { amount: 9.90, title: "Premium Mensal", description: "Presente Mágico - Premium Mensal" },
+  monthly: { amount: 19.90, title: "Premium Mensal", description: "Presente Mágico - Premium Mensal" },
   annual: { amount: 49.90, title: "Premium Anual", description: "Presente Mágico - Premium Anual" },
 } as const
 

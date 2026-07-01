@@ -436,7 +436,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-2 text-white">Magia Premium</h3>
               <p className="text-rose-100 mb-6">Para memórias infinitas.</p>
-              <div className="text-5xl font-extrabold mb-8 text-white">R$ 9,90<span className="text-xl font-medium text-rose-200">/mês</span></div>
+              <div className="text-5xl font-extrabold mb-8 text-white">R$ 19,90<span className="text-xl font-medium text-rose-200">/mês</span></div>
               <ul className="space-y-4 mb-8 text-white">
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> Páginas ilimitadas</li>
                 <li className="flex items-center gap-3"><CheckCircle2 className="text-white" /> IA Ghostwriter Ilimitada</li>

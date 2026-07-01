@@ -437,7 +437,7 @@ function PlansTab({ profile: _profile }: { profile: UserProfile | null }) {
       <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         <PlanCard
           name="Mensal"
-          price="R$ 9,90"
+          price="R$ 19,90"
           oldPrice="R$ 29,90"
           period="/mês"
           description="Para testar sem compromisso"
