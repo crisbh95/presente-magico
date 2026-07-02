@@ -65,23 +65,25 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-cyan-50/50 dark:bg-slate-950 flex flex-col items-center pt-12 px-4 pb-20">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center pt-12 px-4 pb-20 relative overflow-hidden">
       
-      {/* Step Indicator */}
+      
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none opacity-60"></div>
+{/* Step Indicator */}
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between items-center px-2">
           <div className="text-sm font-semibold text-cyan-500">Passo {step} de 3</div>
-          <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-800">Cancelar</button>
+          <button onClick={onBack} className="text-sm text-white/50 hover:text-white">Cancelar</button>
         </div>
         <div className="flex gap-2 mt-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? 'bg-cyan-500' : 'bg-slate-200 dark:bg-slate-800'}`} />
+            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? 'bg-cyan-500' : 'bg-white/10'}`} />
           ))}
         </div>
       </div>
 
       {hasRestored && (
-        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-amber-400 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
           <span>Rascunho recuperado.</span>
           <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
         </div>
@@ -105,7 +107,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
                   type="text" 
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
                   placeholder="Ex: Pedrinho" 
                 />
               </div>
@@ -116,7 +118,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold">Mundo Mágico</h2>
-                <p className="text-slate-500 mt-2">Personalize o presente.</p>
+                <p className="text-white/50 mt-2">Personalize o presente.</p>
               </div>
               <div>
                 <label className="block font-medium mb-2">Tema favorito (Opcional)</label>
@@ -124,7 +126,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
                   type="text" 
                   value={formData.theme}
                   onChange={e => setFormData({...formData, theme: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
                   placeholder="Ex: Dinossauros, Fadas..." 
                 />
               </div>
@@ -134,7 +136,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
                   type="date" 
                   value={formData.date}
                   onChange={e => setFormData({...formData, date: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl py-4 px-5 text-lg outline-none focus:border-cyan-400 focus:ring-4 ring-cyan-100 transition-all" 
                 />
               </div>
             </motion.div>
@@ -159,7 +161,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
         <div className="mt-10 flex gap-4">
           <button 
             onClick={prevStep}
-            className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors"
+            className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 dark:text-white/70 hover:bg-white/10 transition-colors"
           >
             <ChevronLeft size={24} />
           </button>
@@ -167,7 +169,7 @@ export default function KidsWizard({ onBack }: { onBack: () => void }) {
           <button
             onClick={() => setShowPreview(true)}
             disabled={!formData.name}
-            className="flex-1 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="flex-1 bg-white border-2 border-slate-200 text-white/80 rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
             <Eye size={20} /> Preview
           </button>

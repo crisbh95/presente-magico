@@ -65,22 +65,24 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-teal-50/50 dark:bg-slate-950 flex flex-col items-center pt-12 px-4 pb-20">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center pt-12 px-4 pb-20 relative overflow-hidden">
       
-      <div className="w-full max-w-lg mb-8">
+      
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none opacity-60"></div>
+<div className="w-full max-w-lg mb-8">
         <div className="flex justify-between items-center px-2">
           <div className="text-sm font-semibold text-teal-600">Passo {step} de 3</div>
-          <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-800">Cancelar</button>
+          <button onClick={onBack} className="text-sm text-white/50 hover:text-white">Cancelar</button>
         </div>
         <div className="flex gap-2 mt-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? 'bg-teal-500' : 'bg-slate-200 dark:bg-slate-800'}`} />
+            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? 'bg-teal-500' : 'bg-white/10'}`} />
           ))}
         </div>
       </div>
 
       {hasRestored && (
-        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-amber-400 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
           <span>Rascunho recuperado.</span>
           <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
         </div>
@@ -103,7 +105,7 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
                   type="text" 
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none focus:border-teal-400 focus:ring-4 ring-teal-100 transition-all text-center font-medium" 
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl py-4 px-5 text-lg outline-none focus:border-teal-400 focus:ring-4 ring-teal-100 transition-all text-center font-medium" 
                   placeholder="Ex: Rex" 
                 />
               </div>
@@ -119,7 +121,7 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
                 rows={6}
                 value={formData.history}
                 onChange={e => setFormData({...formData, history: e.target.value})}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-lg outline-none focus:border-teal-400 focus:ring-4 ring-teal-100 transition-all resize-none" 
+                className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl p-5 text-lg outline-none focus:border-teal-400 focus:ring-4 ring-teal-100 transition-all resize-none" 
                 placeholder="Conte um pouco da história de vocês..." 
               />
             </motion.div>
@@ -144,7 +146,7 @@ export default function PetWizard({ onBack }: { onBack: () => void }) {
         </AnimatePresence>
 
         <div className="mt-10 flex gap-4">
-          <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+          <button onClick={prevStep} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 dark:text-white/70 hover:bg-white/10 transition-colors">
             <ChevronLeft size={24} />
           </button>
           

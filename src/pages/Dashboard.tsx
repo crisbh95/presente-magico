@@ -83,20 +83,23 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row font-sans">
-      <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center z-20">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row font-sans relative overflow-hidden">
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+
+      <div className="md:hidden bg-black/80 backdrop-blur-md border-b border-white/10 p-4 flex justify-between items-center z-20">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-400 to-primary flex items-center justify-center shadow-lg shadow-rose-500/20">
             <Gift className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-lg">Presente Mágico</span>
         </div>
-        <button onClick={handleLogout} className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+        <button onClick={handleLogout} className="p-2 text-white/50 hover:text-white transition">
           <LogOut className="h-5 w-5" />
         </button>
       </div>
 
-      <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-20">
+      <aside className="hidden md:flex w-64 flex-col bg-black/40 backdrop-blur-xl border-r border-white/10 z-20">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-400 to-primary flex items-center justify-center shadow-xl shadow-rose-500/30">
@@ -116,15 +119,15 @@ export default function Dashboard() {
           </nav>
         </div>
         
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-          <Link to="/ajuda" className="text-sm font-medium text-slate-500 hover:text-primary flex items-center gap-2 transition-colors"><HelpCircle className="w-4 h-4"/> Central de Ajuda</Link>
-          <Link to="/contato" className="text-sm font-medium text-slate-500 hover:text-primary flex items-center gap-2 transition-colors"><Mail className="w-4 h-4"/> Fale Conosco</Link>
+        <div className="px-6 py-4 border-t border-white/10 space-y-3">
+          <Link to="/ajuda" className="text-sm font-medium text-white/50 hover:text-primary flex items-center gap-2 transition-colors"><HelpCircle className="w-4 h-4"/> Central de Ajuda</Link>
+          <Link to="/contato" className="text-sm font-medium text-white/50 hover:text-primary flex items-center gap-2 transition-colors"><Mail className="w-4 h-4"/> Fale Conosco</Link>
         </div>
 
-        <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="mt-auto p-6 border-t border-white/10">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/50 hover:text-primary hover:bg-primary/10 rounded-xl transition-all font-medium"
           >
             <LogOut className="h-5 w-5" />
             Sair da Conta
@@ -132,13 +135,13 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto z-10">
+        <header className="bg-black/60 backdrop-blur-xl border-b border-white/10 sticky top-0 z-10">
           <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold capitalize">
+            <h1 className="text-2xl font-bold capitalize text-white">
               {currentTab === 'dashboard' ? 'Meu Painel' : currentTab === 'plans' ? 'Planos' : currentTab === 'profile' ? 'Perfil' : currentTab}
             </h1>
-            <Link to="/create" className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 hover:shadow-primary/40 flex items-center gap-2 transition-all hover:-translate-y-0.5">
+            <Link to="/create" className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold shadow-[0_0_20px_rgba(255,0,127,0.4)] hover:bg-primary/90 hover:shadow-[0_0_30px_rgba(255,0,127,0.6)] flex items-center gap-2 transition-all hover:-translate-y-0.5">
               <Plus className="h-5 w-5" /> <span className="hidden sm:inline">Criar Presente</span>
             </Link>
           </div>
@@ -149,7 +152,7 @@ export default function Dashboard() {
         </div>
       </main>
       
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-around items-start p-2 pt-2 z-50" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 flex justify-around items-start p-2 pt-2 z-50" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <MobileLink to="/dashboard" icon={<LayoutDashboard />} label="Painel" active={currentTab === 'dashboard'} />
         {!isAdmin && <MobileLink to="/create" icon={<Plus />} label="Criar" active={false} highlight />}
         <MobileLink to="/agency" icon={<Building />} label="Marca" active={currentTab === 'agency'} />
@@ -167,8 +170,8 @@ function SidebarLink({ to, icon, label, active }: { to: string, icon: React.Reac
       to={to} 
       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
         active 
-          ? 'bg-primary/10 text-primary' 
-          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+          ? 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(255,0,127,0.2)] border border-primary/20' 
+          : 'text-white/50 hover:bg-white/5 hover:text-white'
       }`}
     >
       <div className={active ? 'text-primary' : ''}>
@@ -185,13 +188,13 @@ function MobileLink({ to, icon, label, active, highlight }: { to: string, icon: 
       to={to} 
       className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-[64px] ${
         highlight && !active
-          ? 'text-primary hover:bg-primary/5'
+          ? 'text-primary hover:bg-primary/10 shadow-[0_0_15px_rgba(255,0,127,0.2)]'
           : active 
-            ? 'bg-primary/10 text-primary' 
-            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+            ? 'bg-primary/20 text-primary shadow-[0_0_10px_rgba(255,0,127,0.2)]' 
+            : 'text-white/40 hover:text-white'
       }`}
     >
-      <div className={highlight && !active ? 'bg-primary/10 p-1.5 rounded-full' : ''}>
+      <div className={highlight && !active ? 'bg-primary/20 p-1.5 rounded-full border border-primary/30' : ''}>
         {icon}
       </div>
       <span className="text-[10px] font-semibold leading-tight">{label}</span>
@@ -215,13 +218,14 @@ function DashboardHome({ pages, profile, onDelete }: { pages: PageData[], profil
       </div>
 
       {pages.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-dashed rounded-3xl p-12 text-center">
-          <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Gift className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+        <div className="glass border border-white/20 border-dashed rounded-[2rem] p-12 text-center relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
+          <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-[0_0_30px_rgba(255,0,127,0.2)]">
+            <Gift className="h-10 w-10 text-primary" />
           </div>
-          <h3 className="text-xl font-bold mb-2">Nenhum presente ainda</h3>
-          <p className="text-slate-500 mb-8 max-w-sm mx-auto">Crie seu primeiro presente mágico e emocione alguém especial hoje mesmo.</p>
-          <Link to="/create" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:scale-105 transition-all">
+          <h3 className="text-2xl font-bold mb-2 relative z-10 text-white">Nenhum presente ainda</h3>
+          <p className="text-white/50 mb-8 max-w-sm mx-auto relative z-10">Crie seu primeiro presente mágico e emocione alguém especial hoje mesmo.</p>
+          <Link to="/create" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-[0_0_20px_rgba(255,0,127,0.4)] hover:bg-primary/90 hover:scale-105 transition-all relative z-10">
             <Plus className="h-5 w-5" /> Criar Primeiro Presente
           </Link>
         </div>
@@ -238,15 +242,15 @@ function DashboardHome({ pages, profile, onDelete }: { pages: PageData[], profil
 
 function StatCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
   return (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4 relative overflow-hidden group hover:border-primary/30 hover:shadow-md transition-all">
-      <div className="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 dark:bg-slate-800/50 rounded-full group-hover:scale-150 transition-transform duration-700 -z-10" />
-      <div className="flex items-center gap-3">
-        <div className="p-3 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl">
+    <div className="glass p-6 rounded-[2rem] border border-white/10 shadow-[0_0_15px_-5px_rgba(255,0,127,0.1)] flex flex-col gap-4 relative overflow-hidden group hover:border-primary/40 hover:shadow-[0_0_30px_-5px_rgba(255,0,127,0.2)] transition-all">
+      <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-700 -z-10" />
+      <div className="flex items-center gap-3 relative z-10">
+        <div className="p-3 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
           {icon}
         </div>
-        <p className="text-sm font-bold text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-sm font-bold text-white/60">{title}</p>
       </div>
-      <p className="text-4xl font-black text-slate-800 dark:text-white">{value}</p>
+      <p className="text-4xl font-black text-white relative z-10">{value}</p>
     </div>
   );
 }
@@ -254,41 +258,43 @@ function StatCard({ title, value, icon }: { title: string, value: string, icon: 
 function PageCard({ page, onDelete, isPremium }: { page: PageData, onDelete: (id: string | undefined) => void, isPremium?: boolean }) {
   const date = new Date(page.created_at || Date.now()).toLocaleDateString('pt-BR');
   const typeLabel = page.template === 'amor' || page.template === 'love' ? 'Amor' : page.template === 'aniversario' || page.template === 'birthday' ? 'Aniversário' : page.template === 'wedding' || page.template === 'casamento' ? 'Casamento' : 'Especial';
-  const typeColor = page.template === 'amor' || page.template === 'love' ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-blue-100 text-blue-600 border-blue-200';
+  const typeColor = page.template === 'amor' || page.template === 'love' ? 'border-primary text-primary bg-primary/10' : 'border-blue-400 text-blue-400 bg-blue-500/10';
   
   const views = page.views || 0;
   const isWarning = views >= 25;
   const isBlocked = views >= 30;
 
   return (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col h-full">
-      <div className="flex justify-between items-start mb-4">
+    <div className="glass p-6 rounded-[2rem] border border-white/10 shadow-[0_0_15px_-5px_rgba(255,0,127,0.1)] hover:border-primary/40 hover:shadow-[0_0_30px_-5px_rgba(255,0,127,0.3)] hover:-translate-y-1 transition-all group flex flex-col h-full relative overflow-hidden">
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-[50px] pointer-events-none group-hover:bg-primary/20 transition-all" />
+      
+      <div className="flex justify-between items-start mb-4 relative z-10">
         <div>
           <span className={`text-[10px] font-bold px-3 py-1 uppercase tracking-wider rounded-full mb-3 inline-block border ${typeColor}`}>{typeLabel}</span>
           {!isPremium && (
-            <span className={`text-[10px] font-bold px-3 py-1 uppercase tracking-wider rounded-full mb-3 ml-2 inline-block border ${isBlocked ? 'bg-rose-100 text-rose-600 border-rose-200' : isWarning ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`} title="Limite de visualizações do plano grátis">
+            <span className={`text-[10px] font-bold px-3 py-1 uppercase tracking-wider rounded-full mb-3 ml-2 inline-block border ${isBlocked ? 'bg-black/50 text-rose-400 border-rose-500/30' : isWarning ? 'bg-black/50 text-amber-400 border-amber-500/30' : 'bg-black/50 text-white/70 border-white/20'}`} title="Limite de visualizações do plano grátis">
               {views}/30 views
             </span>
           )}
-          <h3 className="font-bold text-xl line-clamp-1 text-slate-800 dark:text-white">{page.data?.name || page.data?.name1 || 'Presente'}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">Criado em {date}</p>
+          <h3 className="font-bold text-xl line-clamp-1 text-white">{page.data?.name || page.data?.name1 || 'Presente'}</h3>
+          <p className="text-sm text-white/50 mt-1 flex items-center gap-1">Criado em {date}</p>
         </div>
       </div>
       
       <div className="flex-1" />
       
-      <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <Link to={`/success`} state={{ pageId: page.id }} className="text-sm text-primary font-bold hover:underline flex items-center gap-1">
+      <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10 relative z-10">
+        <Link to={`/success`} state={{ pageId: page.id }} className="text-sm text-primary font-bold hover:text-white transition-colors flex items-center gap-1">
           Ver QR Code
         </Link>
         <div className="flex gap-1">
-          <Link to={`/edit/${page.id}`} className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors rounded-xl" title="Editar">
+          <Link to={`/edit/${page.id}`} className="p-2.5 text-white/50 hover:text-emerald-400 hover:bg-white/10 transition-colors rounded-xl" title="Editar">
             <Edit3 className="h-4 w-4" />
           </Link>
-          <Link to={`/p/${page.id}`} target="_blank" className="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors rounded-xl" title="Visualizar">
+          <Link to={`/p/${page.id}`} target="_blank" className="p-2.5 text-white/50 hover:text-primary hover:bg-white/10 transition-colors rounded-xl" title="Visualizar">
             <Share2 className="h-4 w-4" />
           </Link>
-          <button onClick={() => onDelete(page.id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors rounded-xl" title="Excluir">
+          <button onClick={() => onDelete(page.id)} className="p-2.5 text-white/50 hover:text-rose-400 hover:bg-white/10 transition-colors rounded-xl" title="Excluir">
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -302,10 +308,10 @@ function PlanCard({ name, price, oldPrice, period, description, features, highli
   features: string[]; highlight: boolean; badge?: string; onSubscribe: () => void;
 }) {
   return (
-    <div className={`relative rounded-[2rem] p-8 flex flex-col border-2 transition-all hover:-translate-y-1 hover:shadow-xl ${
+    <div className={`relative rounded-[2rem] p-8 flex flex-col border-2 transition-all hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(255,0,127,0.2)] ${
       highlight
-        ? 'bg-slate-900 dark:bg-slate-950 text-white border-primary shadow-lg shadow-primary/20 ring-4 ring-primary/20'
-        : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800'
+        ? 'glass border-primary shadow-[0_0_30px_rgba(255,0,127,0.3)] ring-2 ring-primary text-white'
+        : 'glass border-white/10 text-white hover:border-white/30'
     }`}>
       {badge && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
@@ -530,7 +536,7 @@ function ProfileTab({ user, profile }: { user: any, profile: UserProfile | null 
     <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
       <h2 className="text-3xl font-bold mb-8">Meu Perfil</h2>
       
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center">
+      <div className="glass rounded-[2rem] p-8 border border-white/10 shadow-[0_0_30px_rgba(255,0,127,0.1)] flex flex-col items-center">
         <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-rose-400/20 rounded-full flex items-center justify-center mb-6">
           <UserIcon className="w-10 h-10 text-primary" />
         </div>
@@ -657,7 +663,7 @@ function AgencyTab({ user, profile }: { user: any, profile: UserProfile | null }
 
   return (
     <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="glass rounded-[2rem] p-8 border border-white/10 shadow-[0_0_30px_rgba(255,0,127,0.1)]">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white">
             <Building className="w-6 h-6" />

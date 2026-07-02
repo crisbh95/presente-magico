@@ -89,35 +89,35 @@ const COLOR_CLASSES: Record<string, {
 }> = {
   amber: {
     pageBg: 'bg-amber-50/30 dark:bg-slate-950',
-    text: 'text-amber-500',
-    bg: 'bg-amber-500',
+    text: 'text-primary',
+    bg: 'bg-primary',
     iconBg: 'bg-amber-100 dark:bg-amber-900/30',
     border: 'border-amber-100 dark:border-slate-800',
-    focusInput: 'focus:border-amber-400 focus:ring-4 ring-amber-100',
-    aiBtn: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-    aiBtnHover: 'hover:bg-amber-100',
-    prevBtn: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300',
-    primaryBtn: 'bg-amber-500',
+    focusInput: 'focus:border-primary focus:ring-4 ring-primary/20',
+    aiBtn: 'bg-white/5 border border-white/10 text-primary dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    aiBtnHover: 'hover:bg-white/10 hover:text-white',
+    prevBtn: 'bg-white/5 border border-white/10 text-primary dark:text-amber-300',
+    primaryBtn: 'bg-primary',
     primaryBtnText: 'text-white',
-    primaryBtnHover: 'hover:bg-amber-600',
-    shadow: 'shadow-xl shadow-amber-200 dark:shadow-none',
-    step: 'bg-amber-500',
+    primaryBtnHover: 'hover:bg-primary/90',
+    shadow: 'shadow-[0_0_15px_rgba(255,0,127,0.4)] dark:shadow-none',
+    step: 'bg-primary',
   },
   rose: {
     pageBg: 'bg-rose-50/30 dark:bg-slate-950',
-    text: 'text-rose-500',
-    bg: 'bg-rose-500',
+    text: 'text-primary',
+    bg: 'bg-primary',
     iconBg: 'bg-rose-100 dark:bg-rose-900/30',
     border: 'border-rose-100 dark:border-slate-800',
-    focusInput: 'focus:border-rose-400 focus:ring-4 ring-rose-100',
-    aiBtn: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-    aiBtnHover: 'hover:bg-rose-100',
-    prevBtn: 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300',
-    primaryBtn: 'bg-rose-500',
+    focusInput: 'focus:border-primary focus:ring-4 ring-primary/20',
+    aiBtn: 'bg-white/5 border border-white/10 text-primary dark:text-rose-300 border-rose-200 dark:border-rose-800',
+    aiBtnHover: 'hover:bg-white/10 hover:text-white',
+    prevBtn: 'bg-white/5 border border-white/10 text-primary dark:text-rose-300',
+    primaryBtn: 'bg-primary',
     primaryBtnText: 'text-white',
-    primaryBtnHover: 'hover:bg-rose-600',
-    shadow: 'shadow-xl shadow-rose-200 dark:shadow-none',
-    step: 'bg-rose-500',
+    primaryBtnHover: 'hover:bg-primary/90',
+    shadow: 'shadow-[0_0_15px_rgba(255,0,127,0.4)] dark:shadow-none',
+    step: 'bg-primary',
   },
   violet: {
     pageBg: 'bg-violet-50/30 dark:bg-slate-950',
@@ -137,35 +137,35 @@ const COLOR_CLASSES: Record<string, {
   },
   emerald: {
     pageBg: 'bg-emerald-50/30 dark:bg-slate-950',
-    text: 'text-emerald-500',
-    bg: 'bg-emerald-500',
+    text: 'text-primary',
+    bg: 'bg-primary',
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
     border: 'border-emerald-100 dark:border-slate-800',
-    focusInput: 'focus:border-emerald-400 focus:ring-4 ring-emerald-100',
-    aiBtn: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-    aiBtnHover: 'hover:bg-emerald-100',
-    prevBtn: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300',
-    primaryBtn: 'bg-emerald-500',
+    focusInput: 'focus:border-primary focus:ring-4 ring-primary/20',
+    aiBtn: 'bg-white/5 border border-white/10 text-primary dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    aiBtnHover: 'hover:bg-white/10 hover:text-white',
+    prevBtn: 'bg-white/5 border border-white/10 text-primary dark:text-emerald-300',
+    primaryBtn: 'bg-primary',
     primaryBtnText: 'text-white',
-    primaryBtnHover: 'hover:bg-emerald-600',
-    shadow: 'shadow-xl shadow-emerald-200 dark:shadow-none',
-    step: 'bg-emerald-500',
+    primaryBtnHover: 'hover:bg-primary/90',
+    shadow: 'shadow-[0_0_15px_rgba(255,0,127,0.4)] dark:shadow-none',
+    step: 'bg-primary',
   },
   purple: {
     pageBg: 'bg-purple-50/30 dark:bg-slate-950',
-    text: 'text-purple-500',
-    bg: 'bg-purple-500',
+    text: 'text-primary',
+    bg: 'bg-primary',
     iconBg: 'bg-purple-100 dark:bg-purple-900/30',
     border: 'border-purple-100 dark:border-slate-800',
-    focusInput: 'focus:border-purple-400 focus:ring-4 ring-purple-100',
-    aiBtn: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 border-purple-200 dark:border-purple-800',
-    aiBtnHover: 'hover:bg-purple-100',
-    prevBtn: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300',
-    primaryBtn: 'bg-purple-500',
+    focusInput: 'focus:border-primary focus:ring-4 ring-primary/20',
+    aiBtn: 'bg-white/5 border border-white/10 text-primary dark:text-purple-300 border-purple-200 dark:border-purple-800',
+    aiBtnHover: 'hover:bg-white/10 hover:text-white',
+    prevBtn: 'bg-white/5 border border-white/10 text-primary dark:text-purple-300',
+    primaryBtn: 'bg-primary',
     primaryBtnText: 'text-white',
-    primaryBtnHover: 'hover:bg-purple-600',
-    shadow: 'shadow-xl shadow-purple-200 dark:shadow-none',
-    step: 'bg-purple-500',
+    primaryBtnHover: 'hover:bg-primary/90',
+    shadow: 'shadow-[0_0_15px_rgba(255,0,127,0.4)] dark:shadow-none',
+    step: 'bg-primary',
   },
 };
 
@@ -254,17 +254,17 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between items-center px-2">
           <div className={`text-sm font-semibold ${cls.text}`}>Passo {step} de 3</div>
-          <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-800">Cancelar</button>
+          <button onClick={onBack} className="text-sm text-white/50 hover:text-white">Cancelar</button>
         </div>
         <div className="flex gap-2 mt-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? cls.step : 'bg-slate-200 dark:bg-slate-800'}`} />
+            <div key={i} className={`h-2 flex-1 rounded-full transition-colors ${step >= i ? cls.step : 'bg-white/10'}`} />
           ))}
         </div>
       </div>
 
       {hasRestored && (
-        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
+        <div className="w-full max-w-lg mb-4 bg-yellow-50 dark:bg-yellow-900/20 text-amber-400 dark:text-yellow-200 p-3 rounded-xl text-sm flex items-center justify-between border border-yellow-200 dark:border-yellow-900/50">
           <span>Rascunho recuperado.</span>
           <button onClick={() => { clearDraft(); window.location.reload(); }} className="underline font-semibold">Limpar</button>
         </div>
@@ -287,7 +287,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                   type="text" 
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-4 px-5 text-lg outline-none ${cls.focusInput} transition-all text-center font-medium`} 
+                  className={`w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl py-4 px-5 text-lg outline-none ${cls.focusInput} transition-all text-center font-medium`} 
                   placeholder={config.placeholder} 
                 />
               </div>
@@ -298,11 +298,11 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold">Álbum e Voz</h2>
-                <p className="text-slate-500 mt-2">Adicione fotos e áudio especial</p>
+                <p className="text-white/50 mt-2">Adicione fotos e áudio especial</p>
               </div>
 
               <div>
-                <label className="block font-medium mb-2 text-slate-700 dark:text-slate-300">Fotos e Vídeos</label>
+                <label className="block font-medium mb-2 text-white/80 dark:text-white/70">Fotos e Vídeos</label>
                 <PhotoUploadWithCaption 
                   photos={formData.photos} 
                   onChange={(photos) => setFormData({...formData, photos})}
@@ -312,7 +312,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
               </div>
 
               <div>
-                <label className="block font-medium mb-2 text-slate-700 dark:text-slate-300">Áudio Especial</label>
+                <label className="block font-medium mb-2 text-white/80 dark:text-white/70">Áudio Especial</label>
                 <label className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                   <input type="file" accept="audio/*" className="hidden" onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
@@ -324,7 +324,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                   </div>
                   <div>
                     <p className="font-medium">Mensagem de Voz</p>
-                    <p className="text-sm text-slate-500">{formData.audio ? formData.audio.name : 'Faça o upload do seu áudio'}</p>
+                    <p className="text-sm text-white/50">{formData.audio ? formData.audio.name : 'Faça o upload do seu áudio'}</p>
                   </div>
                 </label>
               </div>
@@ -346,7 +346,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
                 rows={6}
                 value={formData.message}
                 onChange={e => setFormData({...formData, message: e.target.value})}
-                className={`w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-lg outline-none ${cls.focusInput} transition-all resize-none`} 
+                className={`w-full bg-white/5 border border-white/10 text-white placeholder-white/40 rounded-2xl p-5 text-lg outline-none ${cls.focusInput} transition-all resize-none`} 
                 placeholder={config.messagePlaceholder} 
               />
             </motion.div>
@@ -355,7 +355,7 @@ export default function GenericWizard({ onBack, occasion = 'personalizado', reci
         </AnimatePresence>
 
         <div className="mt-10 flex gap-4">
-          <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+          <button onClick={prevStep} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 dark:text-white/70 hover:bg-white/10 transition-colors">
             <ChevronLeft size={24} />
           </button>
           
