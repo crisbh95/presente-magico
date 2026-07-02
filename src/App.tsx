@@ -21,6 +21,7 @@ const Ajuda = lazy(() => import('./pages/Ajuda'));
 const Terms = lazy(() => import('./pages/Terms'));
 
 import { useAuth } from './contexts/AuthContext';
+import CookieBanner from './components/CookieBanner';
 
 // Componente do WhatsApp Flutuante
 const WhatsAppButton = () => {
@@ -96,6 +97,7 @@ function App() {
             </Routes>
           </Suspense>
           <WhatsAppButton />
+          <CookieBanner />
         </BrowserRouter>
       </AuthProvider>
     </HelmetProvider>

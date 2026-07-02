@@ -25,6 +25,7 @@ export default function FatherWizard({ onBack, recipient = 'pai', occasion }: { 
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [acceptLgpd, setAcceptLgpd] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const isAvo = recipient === 'avo-m' || recipient.includes('avo');
@@ -172,6 +173,21 @@ export default function FatherWizard({ onBack, recipient = 'pai', occasion }: { 
           )}
 
         </AnimatePresence>
+
+        {step === 4 && (
+          <div className="mt-6 flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
+            <input
+              type="checkbox"
+              id="lgpd"
+              checked={acceptLgpd}
+              onChange={(e) => setAcceptLgpd(e.target.checked)}
+              className="mt-1 min-w-4 w-4 h-4 rounded border-white/20 text-primary focus:ring-primary bg-black/50 accent-primary"
+            />
+            <label htmlFor="lgpd" className="text-xs text-white/70 leading-relaxed">
+              Autorizo o processamento dos dados e fotos fornecidos estritamente para a criação e exibição deste presente, conforme a <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade (LGPD)</a>.
+            </label>
+          </div>
+        )}
 
         <div className="mt-10 flex gap-4">
           <button onClick={prevStep} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 dark:text-white/70 hover:bg-white/10 transition-colors">

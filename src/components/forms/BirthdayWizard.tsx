@@ -27,6 +27,7 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
 
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [acceptLgpd, setAcceptLgpd] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
@@ -210,6 +211,21 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
 
         </AnimatePresence>
 
+        {step === 4 && (
+          <div className="mt-6 flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
+            <input
+              type="checkbox"
+              id="lgpd"
+              checked={acceptLgpd}
+              onChange={(e) => setAcceptLgpd(e.target.checked)}
+              className="mt-1 min-w-4 w-4 h-4 rounded border-white/20 text-primary focus:ring-primary bg-black/50 accent-primary"
+            />
+            <label htmlFor="lgpd" className="text-xs text-white/70 leading-relaxed">
+              Autorizo o processamento dos dados e fotos fornecidos estritamente para a criação e exibição deste presente, conforme a <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade (LGPD)</a>.
+            </label>
+          </div>
+        )}
+
         <div className="mt-10 flex gap-4">
           <button 
             onClick={prevStep}
@@ -232,7 +248,7 @@ export default function BirthdayWizard({ onBack }: { onBack: () => void }) {
               (step === 1 && !formData.name) ||
               (step === 2 && !formData.age) ||
               isSaving
-            }
+             || (step === 4 && !acceptLgpd)}
             className="flex-1 bg-primary text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,0,127,0.4)] hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:shadow-none"
           >
             {isSaving ? <Loader2 className="animate-spin" /> : step === 4 ? 'Gerar Presente' : 'Continuar'} 

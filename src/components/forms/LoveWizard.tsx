@@ -28,6 +28,7 @@ export default function LoveWizard({ onBack, recipient = 'amor', occasion }: { o
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [acceptLgpd, setAcceptLgpd] = useState(false);
 
   const isFriend = recipient.includes('amig') || recipient.includes('outro') || recipient === 'familia';
   const title1 = isFriend ? "O seu nome" : "Qual o seu nome?";
@@ -242,6 +243,21 @@ export default function LoveWizard({ onBack, recipient = 'amor', occasion }: { o
 
         </AnimatePresence>
 
+        {step === 4 && (
+          <div className="mt-6 flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
+            <input
+              type="checkbox"
+              id="lgpd"
+              checked={acceptLgpd}
+              onChange={(e) => setAcceptLgpd(e.target.checked)}
+              className="mt-1 min-w-4 w-4 h-4 rounded border-white/20 text-primary focus:ring-primary bg-black/50 accent-primary"
+            />
+            <label htmlFor="lgpd" className="text-xs text-white/70 leading-relaxed">
+              Autorizo o processamento dos dados e fotos fornecidos estritamente para a criação e exibição deste presente, conforme a <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade (LGPD)</a>.
+            </label>
+          </div>
+        )}
+
         <div className="mt-10 flex gap-4">
           <button onClick={prevStep} className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 dark:text-white/70 hover:bg-white/10 transition-colors">
             <ChevronLeft size={24} />
@@ -251,7 +267,7 @@ export default function LoveWizard({ onBack, recipient = 'amor', occasion }: { o
             <Eye size={24} />
           </button>
 
-          <button onClick={step === 4 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && (!formData.myName || !formData.loveName))} className="flex-1 bg-primary text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,0,127,0.4)] hover:bg-primary/90 transition-colors disabled:opacity-50">
+          <button onClick={step === 4 ? handleFinish : nextStep} disabled={isSaving || (step === 1 && (!formData.myName || !formData.loveName)) || (step === 4 && !acceptLgpd)} className="flex-1 bg-primary text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,0,127,0.4)] hover:bg-primary/90 transition-colors disabled:opacity-50">
             {isSaving ? <Loader2 className="animate-spin" size={24} /> : step === 4 ? 'Gerar Presente' : 'Continuar'} 
             {!isSaving && step < 4 && <ChevronRight size={24} />}
           </button>

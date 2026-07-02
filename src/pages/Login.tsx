@@ -17,6 +17,7 @@ export default function Login() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +42,11 @@ export default function Login() {
         if (error) throw error;
         navigate(from, { replace: true });
       } else {
+        if (!acceptTerms) {
+          setError('Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar uma conta.');
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         navigate(from, { replace: true });
@@ -169,6 +175,21 @@ export default function Login() {
                   placeholder="••••••••"
                 />
               </div>
+            </div>
+          )}
+
+          {!isLogin && !isResetting && (
+            <div className="flex items-start gap-2 mt-4 mb-2">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-1 min-w-4 w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-white dark:bg-slate-900 accent-primary"
+              />
+              <label htmlFor="terms" className="text-xs text-slate-500 dark:text-slate-400">
+                Li e concordo com os <a href="/termos" target="_blank" className="text-primary hover:underline">Termos de Uso</a> e a <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade</a> (LGPD).
+              </label>
             </div>
           )}
 
